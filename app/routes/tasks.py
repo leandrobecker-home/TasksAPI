@@ -10,7 +10,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Request, Response, status
 
 from app.models import Task
-from app.routes.dependencies import SessionDep
+from app.routes.dependencies import PaginationDep, SessionDep
+from app.schemas.common import Page, build_page
 from app.schemas.task import TaskCreate, TaskRead
 from app.services.task import TaskService
 
@@ -43,3 +44,17 @@ def create_task(
     api_prefix = request.url.path.partition("/task-groups/")[0]
     response.headers["Location"] = f"{api_prefix}/tasks/{task.id}"
     return task
+
+
+@group_tasks_router.get(
+    "",
+    response_model=Page[TaskRead],
+    summary="List the tasks of a group",
+)
+def list_group_tasks(
+    group_id: UUID, pagination: PaginationDep, service: ServiceDep
+) -> Page[TaskRead]:
+    """List the tasks of a group, newest first, one page at a time."""
+    tasks, total = service.list_for_group(group_id, pagination)
+    items = [TaskRead.model_validate(task) for task in tasks]
+    return build_page(items, pagination, total)
