@@ -58,3 +58,13 @@ def list_group_tasks(
     tasks, total = service.list_for_group(group_id, pagination)
     items = [TaskRead.model_validate(task) for task in tasks]
     return build_page(items, pagination, total)
+
+
+@router.get(
+    "/{task_id}",
+    response_model=TaskRead,
+    summary="Get a task",
+)
+def get_task(task_id: UUID, service: ServiceDep) -> Task:
+    """Return one task, or 404 if it does not exist."""
+    return service.get(task_id)
