@@ -3,7 +3,7 @@
 | Item | Valor |
 |---|---|
 | Base | [01-escopo-mvp.md](01-escopo-mvp.md) v1.3 · [02-backlog.md](02-backlog.md) v1.2 · [03-arquitetura-mvp.md](03-arquitetura-mvp.md) v1.2 |
-| Versão do documento | 1.6 |
+| Versão do documento | 1.7 |
 | Data | 2026-10-17 |
 | Status | Rascunho |
 
@@ -244,11 +244,13 @@ tests/
 
 1. **Objetivo:** validar a release como um todo.
 2. **Requisitos:** aceite da R1 no backlog.
-3. **Testes:** teste de ponta a ponta do fluxo completo (criar grupo → criar tarefas → listar → concluir → excluir tarefas → excluir grupo); verificação de que nenhum endpoint cria tarefa sem grupo; cobertura de pelo menos 80%.
+3. **Testes:** teste de ponta a ponta do fluxo completo (criar grupo → criar tarefas → listar → concluir → excluir tarefas → excluir grupo), em processo e contra o servidor real; inventário do contrato (exatamente os endpoints da R1, nenhum `PUT`); verificação de que nenhum caminho cria tarefa sem grupo; cobertura de pelo menos 80%.
 4. **Commits:**
    1. `test: adiciona teste de ponta a ponta do fluxo principal`
-   2. `docs: marca critérios concluídos da R1 no backlog`
-5. **Pronto quando:** todos os itens da R1 estão marcados e o portão de qualidade passa. Criar a tag `v0.1.0`.
+   2. `test: verifica o contrato da R1 e que nenhuma tarefa nasce sem grupo`
+   3. `docs: marca o aceite da R1 no backlog`
+   4. Tag `v0.1.0` na `main`, com aprovação prévia.
+5. **Pronto quando:** todos os itens da R1 estão marcados e o portão de qualidade passa. O teste de contrato do `413` não é da R1: o código nasce com o limite de corpo (RT11, Etapa 17).
 
 ---
 

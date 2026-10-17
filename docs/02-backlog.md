@@ -3,7 +3,7 @@
 | Item | Valor |
 |---|---|
 | Base | [01-escopo-mvp.md](01-escopo-mvp.md) v1.3 |
-| Versão do documento | 1.3 |
+| Versão do documento | 1.4 |
 | Data | 2026-10-17 |
 | Status | Rascunho |
 
@@ -88,13 +88,13 @@
   - [x] `.env.example` versionado com todas as variáveis e valores de exemplo.
   - [x] `.env` no `.gitignore`; nenhum segredo no repositório.
 
-- [ ] **RT14 — Tratamento de erros (RFC 9457)**
+- [x] **RT14 — Tratamento de erros (RFC 9457)**
   - [x] Toda resposta de erro usa `application/problem+json` com `type`, `title`, `status`, `detail` e `instance` (exceto o `503` de `GET /health`, que segue o formato do RF14).
   - [x] Parâmetro de query inválido retorna `400`; corpo inválido e `id` de caminho que não é UUID retornam `422`.
   - [x] Rota inexistente retorna `404` e método não permitido retorna `405`, ambos em Problem Details.
   - [x] Corpo com JSON malformado retorna `400`.
   - [x] Erro `500` não expõe stack trace, SQL ou caminhos internos.
-  - [ ] Cada código da tabela da seção 4.5 do escopo tem teste de contrato dedicado (faltam o `413`, na Etapa 17; o `503` é o do `GET /health`).
+  - [x] Cada código da tabela da seção 4.5 do escopo que a R1 produz (`400`, `404`, `405`, `409`, `422` e `500`) tem teste de contrato dedicado. O `413` nasce com o limite de corpo e é testado no RT11 (R2); o `503` é o do `GET /health`, no formato do RF14.
 
 - [x] **RT15 — Estratégia de testes**
   - [x] `pytest` configurado no `pyproject.toml` (diretório `tests/`, separação `unit` e `integration`).
@@ -184,10 +184,10 @@
 
 ### Aceite da release R1
 
-- [ ] Todos os itens da R1 concluídos.
-- [ ] Fluxo de ponta a ponta validado: criar grupo → criar tarefas → listar por grupo → concluir uma tarefa → excluir tarefas → excluir grupo.
-- [ ] Não é possível criar uma tarefa sem um grupo existente, por nenhum endpoint.
-- [ ] Cobertura de testes de pelo menos 80% e portão de qualidade sem erros.
+- [x] Todos os itens da R1 concluídos.
+- [x] Fluxo de ponta a ponta validado: criar grupo → criar tarefas → listar por grupo → concluir uma tarefa → excluir tarefas → excluir grupo.
+- [x] Não é possível criar uma tarefa sem um grupo existente, por nenhum endpoint.
+- [x] Cobertura de testes de pelo menos 80% e portão de qualidade sem erros.
 
 ---
 
