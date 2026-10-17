@@ -3,7 +3,7 @@
 | Item | Valor |
 |---|---|
 | Base | [01-escopo-mvp.md](01-escopo-mvp.md) v1.3 · [02-backlog.md](02-backlog.md) v1.2 · [03-arquitetura-mvp.md](03-arquitetura-mvp.md) v1.2 |
-| Versão do documento | 1.0 |
+| Versão do documento | 1.1 |
 | Data | 2026-10-17 |
 | Status | Rascunho |
 
@@ -12,6 +12,7 @@
 - **Fatias verticais.** Cada entrega atravessa todas as camadas (modelo → repositório → serviço → rota → teste). Não se constrói uma camada inteira antes de usá-la.
 - **Testes junto com o código.** Nenhum commit de funcionalidade entra sem os testes dos critérios de aceite correspondentes do backlog. Para regras de negócio, o teste do serviço vem primeiro (sem HTTP, conforme RT02).
 - **Commit atômico.** Cada commit tem um único propósito, compila, passa em todos os testes e deixa o CI verde. Um commit nunca depende de um commit posterior para funcionar.
+- **Aprovação antes de cada commit.** Nenhum commit é feito sem que o usuário veja o que será commitado, a mensagem completa e o resultado do portão de qualidade, e aprove explicitamente (seção 1.4).
 - **Rastreabilidade.** Cada commit de funcionalidade cita o RF/RT ou a RN que implementa.
 - **Documentos acompanham o código.** Mudança de decisão atualiza os documentos de `docs/` em commit `docs:` próprio, separado do código.
 - **Código em inglês** (nomes, docstrings, comentários, logs e mensagens de erro da API); mensagens de commit em português, como no histórico atual.
@@ -55,10 +56,47 @@ Escopos sugeridos: `api`, `config`, `db`, `errors`, `health`, `task-groups`, `ta
 
 1. Trabalhar em branch curta por etapa (`feat/task-groups-create`) ou direto na `main`, sempre com commits pequenos.
 2. Rodar o portão de qualidade a cada commit.
-3. Ao concluir uma etapa, marcar os critérios no `docs/02-backlog.md` (commit `docs:`).
-4. Ao fechar uma release, criar uma tag: `v0.1.0` (R1), `v0.2.0` (R2) e `v1.0.0` (R3).
+3. Antes de cada commit, apresentar o que será commitado e a mensagem, e aguardar a aprovação (seção 1.4).
+4. Ao concluir uma etapa, marcar os critérios no `docs/02-backlog.md` (commit `docs:`, também sujeito à aprovação).
+5. Ao fechar uma release, criar uma tag: `v0.1.0` (R1), `v0.2.0` (R2) e `v1.0.0` (R3), também com aprovação prévia.
 
-### 1.4 Estrutura de código alvo
+### 1.4 Aprovação antes de cada commit
+
+Vale para **todo** commit, de qualquer tipo (`feat`, `docs`, `chore`, `docs(prompts)` etc.), para renomeações e para a criação de tags. Não há exceção.
+
+1. **Preparar.** Rodar o portão de qualidade (seção 1.1) e adicionar ao stage somente os arquivos do commit.
+2. **Apresentar.** Mostrar ao usuário, em uma única mensagem:
+   - os arquivos que entrarão no commit (saída de `git diff --cached --stat`) e, quando houver arquivos fora do commit, quais ficaram de fora;
+   - a mensagem completa: título, corpo e rodapé `Co-Authored-By`;
+   - o resultado do portão de qualidade (lint, formatação, tipos, testes e cobertura).
+3. **Aguardar.** Parar e esperar a resposta. Silêncio, aprovação de um commit anterior ou aprovação do plano da etapa **não** autorizam o commit.
+4. **Ajustar.** Se o usuário pedir mudanças, aplicar, rodar o portão de novo e apresentar outra vez.
+5. **Commitar.** Só após a aprovação explícita, criar o commit e mostrar o hash e o `git log --stat -1`.
+
+A aprovação vale apenas para o commit apresentado: cada commit listado na etapa é apresentado e aprovado em separado. O `git push` não faz parte do fluxo e só acontece se o usuário pedir.
+
+Modelo da apresentação:
+
+```text
+Commit proposto (etapa N, commit k de m)
+
+Arquivos:
+  A  app/config.py
+  A  tests/unit/test_config.py
+
+Mensagem:
+  feat(config): adiciona configuração via pydantic-settings
+
+  <corpo, quando houver>
+
+  Co-Authored-By: ...
+
+Portão de qualidade: ruff ok · mypy ok · pytest 12 passed · cobertura 91%
+
+Posso commitar?
+```
+
+### 1.5 Estrutura de código alvo
 
 ```text
 app/
