@@ -117,6 +117,25 @@ def test_empty_database_url_fails_on_startup(
         make_settings()
 
 
+ENV_EXAMPLE = Path(__file__).resolve().parents[2] / ".env.example"
+
+
+def test_env_example_documents_every_setting() -> None:
+    declared = {
+        line.split("=", 1)[0]
+        for line in ENV_EXAMPLE.read_text(encoding="utf-8").splitlines()
+        if line and not line.startswith("#")
+    }
+
+    expected = {f"TASKS_{name.upper()}" for name in Settings.model_fields}
+
+    assert declared == expected
+
+
+def test_env_example_loads_with_the_default_values() -> None:
+    assert make_settings(ENV_EXAMPLE) == make_settings()
+
+
 def test_get_settings_builds_once_and_caches(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
