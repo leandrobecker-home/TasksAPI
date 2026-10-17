@@ -22,6 +22,7 @@ Fase atual: documentação e spike técnico concluídos; código ainda não inic
 | `docs/02-backlog.md` | Backlog em checklist por release (R1 Core, R2 Piloto, R3 Entrega final), com critérios de aceite. |
 | `docs/03-arquitetura-mvp.md` | Bibliotecas escolhidas e justificativas. |
 | `docs/04-mermaid.md` | Diagramas de endpoints, camadas, modelo de dados e fluxos. |
+| `docs/07-passos-dev.md` | Plano de implementação em etapas numeradas, com testes e commits atômicos (Conventional Commits). Siga-o ao codificar. |
 | `docs/PYTHON.md` | Instalação do Python 3.14 com `uv`. |
 
 Ao mudar uma decisão (endpoint, campo, regra, biblioteca), atualize **todos** os documentos afetados para que continuem coerentes entre si, e incremente a versão no cabeçalho do documento alterado.
