@@ -78,3 +78,13 @@ def update_task_group(
 ) -> TaskGroup:
     """Change only the fields sent; the others keep their values."""
     return service.update(group_id, data)
+
+
+@router.delete(
+    "/{group_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a task group",
+)
+def delete_task_group(group_id: UUID, service: ServiceDep) -> None:
+    """Delete a task group, or return 404 if it does not exist."""
+    service.delete(group_id)
