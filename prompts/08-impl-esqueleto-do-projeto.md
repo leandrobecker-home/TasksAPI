@@ -1,0 +1,2 @@
+Contexto: Iniciar o Desenvolvimento da API REST para controle de Tarefas
+Objetivo: Baseado no documento `docs\07-passos-dev.md` iniciar o desenvolvimento conforme o planejamento da Etapa 1. Antes de tudo, verifique se todos os módulos listados em `requirements.txt` estão instalados e se não estiverem, instale-los.
