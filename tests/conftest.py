@@ -5,38 +5,26 @@ instance, so tests never depend on each other or on execution order.
 """
 
 from collections.abc import Iterator
-from sqlite3 import Connection as SQLiteConnection
 
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from sqlalchemy import Engine, event
-from sqlalchemy.pool import ConnectionPoolEntry, StaticPool
-from sqlmodel import Session, SQLModel, create_engine
+from sqlalchemy import Engine
+from sqlmodel import Session, SQLModel
+
+from app.db import create_db_engine
 
 
 @pytest.fixture
 def engine() -> Iterator[Engine]:
     """Create a brand-new in-memory SQLite database for a single test.
 
-    A static pool keeps one shared connection, so every session (including the
-    ones opened from the TestClient worker thread) sees the same database.
-    Foreign keys are enforced, as SQLite leaves them off by default.
+    The engine comes from the application's own factory, so tests exercise the
+    same setup as production: one shared connection (every session, including
+    the ones opened from the TestClient worker thread, sees the same database)
+    and foreign keys enforced.
     """
-    test_engine = create_engine(
-        "sqlite://",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
-
-    @event.listens_for(test_engine, "connect")
-    def _enable_foreign_keys(
-        dbapi_connection: SQLiteConnection, _record: ConnectionPoolEntry
-    ) -> None:
-        cursor = dbapi_connection.cursor()
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.close()
-
+    test_engine = create_db_engine("sqlite://")
     SQLModel.metadata.create_all(test_engine)
     yield test_engine
     test_engine.dispose()
