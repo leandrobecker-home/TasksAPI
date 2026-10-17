@@ -2,15 +2,15 @@
 
 | Item | Valor |
 |---|---|
-| Base | [02-backlog.md](02-backlog.md) v1.0 · [03-arquitetura-mvp.md](03-arquitetura-mvp.md) v1.0 |
-| Versão do documento | 1.0 |
+| Base | [02-backlog.md](02-backlog.md) v1.2 · [03-arquitetura-mvp.md](03-arquitetura-mvp.md) v1.2 |
+| Versão do documento | 1.2 |
 | Data | 2026-10-17 |
 
 Os diagramas usam [Mermaid](https://mermaid.js.org/) e são renderizados direto no GitHub, GitLab e VS Code (com extensão de preview Mermaid). Caminhos de negócio são relativos a `/api/v1`.
 
 ## 1. Endpoints REST
 
-Endpoints agrupados por recurso, com o ID do requisito e a release em que entram (R1 Core, R2 Piloto).
+Endpoints agrupados por recurso, com o ID do requisito e a release em que entram (R1 Core, R2 Piloto). Não há `PUT /tasks/{id}` no MVP: a edição de tarefas é feita por `PATCH`.
 
 ```mermaid
 flowchart LR
@@ -18,25 +18,24 @@ flowchart LR
 
     subgraph G["/api/v1/task-groups"]
         G1["POST /task-groups<br/>RF01 · R1"]
-        G2["GET /task-groups<br/>RF02 · R1"]
+        G2["GET /task-groups<br/>RF02 · R1 (total_tasks · R2)"]
         G3["GET /task-groups/{id}<br/>RF03 · R1"]
         G4["PATCH /task-groups/{id}<br/>RF04 · R1"]
         G5["DELETE /task-groups/{id}<br/>RF05 · R1"]
         GT1["POST /task-groups/{group_id}/tasks<br/>RF06 · R1"]
-        GT2["GET /task-groups/{group_id}/tasks<br/>RF07–RF10 · R1/R2"]
+        GT2["GET /task-groups/{group_id}/tasks<br/>RF07 · R1 (filtros RF08–RF10 · R2)"]
     end
 
     subgraph T["/api/v1/tasks"]
-        T1["GET /tasks<br/>RF07–RF10 · R1/R2"]
+        T1["GET /tasks<br/>RF07 (parte 2), RF08–RF10 · R2"]
         T2["GET /tasks/{id}<br/>RF11 · R1"]
-        T3["PUT /tasks/{id}<br/>RF12 · R1"]
-        T4["PATCH /tasks/{id}<br/>RF13 · R1"]
-        T5["DELETE /tasks/{id}<br/>RF14 · R1"]
+        T4["PATCH /tasks/{id}<br/>RF12 · R1"]
+        T5["DELETE /tasks/{id}<br/>RF13 · R1"]
     end
 
     subgraph O["Operação (sem prefixo)"]
-        O1["GET /health<br/>RF15 · R1"]
-        O2["GET /docs<br/>RF16 · R2"]
+        O1["GET /health<br/>RF14 · R1"]
+        O2["GET /docs<br/>RF15 · R2"]
     end
 
     C --> G
@@ -84,23 +83,24 @@ erDiagram
 
     TASK_GROUP {
         uuid id PK
-        string nome UK "1-100, único sem diferenciar maiúsculas"
-        string descricao "até 500, opcional"
-        datetime criado_em
-        datetime atualizado_em
+        string name "1-100"
+        string normalized_name UK "interno: strip + casefold, índice único"
+        string description "até 500, opcional"
+        datetime created_at
+        datetime updated_at
     }
 
     TASK {
         uuid id PK
         uuid task_group_id FK "obrigatório"
-        string titulo "1-200"
-        string descricao "até 2000, opcional"
-        enum status "pendente | em_andamento | concluida"
-        enum prioridade "baixa | media | alta"
-        date data_vencimento "opcional"
-        datetime criado_em
-        datetime atualizado_em
-        datetime concluido_em "gerado pelo servidor"
+        string title "1-200"
+        string description "até 2000, opcional"
+        enum status "pending | in_progress | completed"
+        enum priority "low | medium | high"
+        date due_date "opcional"
+        datetime created_at
+        datetime updated_at
+        datetime completed_at "gerado pelo servidor"
     }
 ```
 
@@ -122,15 +122,15 @@ sequenceDiagram
     alt corpo inválido
         R-->>C: 422 Problem Details
     end
-    R->>S: criar_task(group_id, dados)
-    S->>REP: buscar grupo(group_id)
+    R->>S: create_task(group_id, data)
+    S->>REP: get_group(group_id)
     REP->>DB: SELECT task_groups
     DB-->>REP: grupo ou vazio
     alt grupo não existe (RN02)
-        S-->>R: GrupoNaoEncontrado
+        S-->>R: GroupNotFoundError
         R-->>C: 404 Problem Details
     else grupo existe
-        S->>S: aplica padrões e concluido_em (RN05, RN07)
+        S->>S: aplica padrões e completed_at (RN05, RN07)
         S->>REP: inserir task
         REP->>DB: INSERT tasks
         S-->>R: task criada
@@ -150,7 +150,7 @@ sequenceDiagram
     participant DB as SQLite
 
     C->>R: DELETE /task-groups/{id}
-    R->>S: excluir_grupo(id)
+    R->>S: delete_group(id)
     S->>REP: buscar grupo e contar tasks
     REP->>DB: SELECT task_groups / COUNT tasks
     alt grupo não existe
@@ -168,14 +168,14 @@ sequenceDiagram
 
 ```mermaid
 stateDiagram-v2
-    [*] --> pendente: criação (padrão)
-    pendente --> em_andamento
-    em_andamento --> pendente
-    pendente --> concluida: preenche concluido_em
-    em_andamento --> concluida: preenche concluido_em
-    concluida --> pendente: limpa concluido_em
-    concluida --> em_andamento: limpa concluido_em
-    concluida --> [*]: DELETE /tasks/{id}
-    pendente --> [*]: DELETE /tasks/{id}
-    em_andamento --> [*]: DELETE /tasks/{id}
+    [*] --> pending: criação (padrão)
+    pending --> in_progress
+    in_progress --> pending
+    pending --> completed: preenche completed_at
+    in_progress --> completed: preenche completed_at
+    completed --> pending: limpa completed_at
+    completed --> in_progress: limpa completed_at
+    completed --> [*]: DELETE /tasks/{id}
+    pending --> [*]: DELETE /tasks/{id}
+    in_progress --> [*]: DELETE /tasks/{id}
 ```
