@@ -8,6 +8,7 @@ from sqlalchemy import Engine
 
 from app.config import Settings, get_settings
 from app.db import create_db_engine
+from app.error_handlers import register_error_handlers
 from app.routes import health
 
 API_TITLE = "Tasks API"
@@ -45,5 +46,6 @@ def create_app(
     )
     app.state.settings = app_settings
     app.state.engine = db_engine
+    register_error_handlers(app)
     app.include_router(health.router)
     return app
