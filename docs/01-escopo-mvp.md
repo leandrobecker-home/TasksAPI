@@ -3,7 +3,7 @@
 | Item | Valor |
 |---|---|
 | Produto | Tasks API |
-| Versão do documento | 1.3 |
+| Versão do documento | 1.4 |
 | Data | 2026-10-17 |
 | Status | Rascunho |
 
@@ -184,7 +184,7 @@ O FastAPI devolve `422` por padrão para qualquer erro de validação. O mapeame
 | RNF09 | Observabilidade | Logs estruturados (JSON) com nível, timestamp, método, rota, status HTTP, duração e `request_id` (propagado no header `X-Request-ID`). |
 | RNF10 | Configuração | Configuração por variáveis de ambiente (12-factor), com arquivo `.env.example` versionado. Nenhum segredo no repositório. |
 | RNF11 | Segurança | Validação de toda entrada; limite de 1 MB no corpo da requisição, contado durante a leitura, inclusive quando o cliente não envia `Content-Length`; erros `500` não expõem stack trace. |
-| RNF12 | Portabilidade | Execução em Windows e Linux, diretamente no ambiente local gerenciado por `uv`. |
+| RNF12 | Portabilidade | Desenvolvido e testado em Windows. O código é escrito para ser portável a Linux (`pathlib`, sem comandos ou caminhos dependentes do sistema operacional, `utf-8` explícito), mas a execução em Linux não é testada no MVP. O ambiente é gerenciado por `uv`. |
 | RNF13 | Documentação | `README.md` com instruções de instalação, execução, testes e exemplos de requisição. |
 | RNF14 | Tratamento de erros | Todas as respostas de erro, inclusive `404` de rota inexistente e `405`, usam `application/problem+json` (RFC 9457). *Exception handlers* próprios mapeiam erros de validação para `400` (query) ou `422` (corpo e caminho). |
 | RNF15 | Estratégia de testes | Cada teste usa banco SQLite isolado (em memória ou arquivo temporário), sem depender da ordem de execução. Fixtures e fábricas de dados compartilhadas. Garantias do banco (chave estrangeira, unicidade do nome, fuso UTC) têm teste dedicado. |
@@ -196,7 +196,7 @@ O FastAPI devolve `422` por padrão para qualquer erro de validação. O mapeame
 | `ruff` | Linter e formatador. Aponta erros e más práticas (imports e variáveis sem uso, `except:` genérico, nomes indefinidos), padroniza o estilo do código e ordena os imports. Corrige muitos problemas automaticamente (`ruff check --fix`). |
 | `mypy` | Checador estático de tipos. Usa as anotações de tipo (`def f(x: int) -> str`) para encontrar inconsistências antes da execução, como passar `str` onde se espera `UUID` ou acessar atributo de um valor que pode ser `None`. |
 
-As duas ferramentas analisam o código sem executá-lo e se complementam: o `ruff` cuida da limpeza e do padrão do código, e o `mypy`, da coerência dos tipos. Ambas devem rodar localmente e no CI, e qualquer falha bloqueia o merge.
+As duas ferramentas analisam o código sem executá-lo e se complementam: o `ruff` cuida da limpeza e do padrão do código, e o `mypy`, da coerência dos tipos. Ambas devem rodar localmente antes de cada commit, e qualquer falha impede o commit.
 
 ```bash
 uv run ruff check .    # lint
@@ -223,7 +223,7 @@ Itens explicitamente excluídos do MVP. Podem ser reavaliados em versões futura
 - Busca full-text avançada (relevância, stemming).
 - Rate limiting, cache e alta disponibilidade.
 - Conteinerização (Docker, `Dockerfile`, Docker Compose).
-- Deploy em nuvem, pipeline de CD e ambientes de homologação/produção.
+- Deploy em nuvem, pipelines de CI/CD e ambientes de homologação/produção.
 - Integrações externas (calendários, Slack, Jira etc.).
 - Internacionalização das mensagens de erro (MVP apenas em português).
 
@@ -231,6 +231,7 @@ Itens explicitamente excluídos do MVP. Podem ser reavaliados em versões futura
 
 - A API é consumida por clientes confiáveis em ambiente controlado, o que justifica a ausência de autenticação no MVP. **Não expor publicamente nesta versão.**
 - Volume esperado no MVP: até 10 mil tarefas e baixa concorrência.
+- Não será usado nenhum pipeline de CI: a qualidade é garantida por um portão local (lint, formatação, tipos e testes com cobertura) executado antes de cada commit.
 - Framework web e ORM serão definidos no documento de arquitetura, respeitando os RNF02, RNF03 e RNF04 e a compatibilidade com Python 3.14.
 
 ## 8. Riscos

@@ -3,7 +3,7 @@
 | Item | Valor |
 |---|---|
 | Base | [01-escopo-mvp.md](01-escopo-mvp.md) v1.3 · [02-backlog.md](02-backlog.md) v1.2 |
-| Versão do documento | 1.2 |
+| Versão do documento | 1.3 |
 | Data | 2026-10-17 |
 | Status | Rascunho |
 
@@ -53,7 +53,7 @@ O SQLModel é mantido pelo mesmo autor do FastAPI e se integra a ele sem convers
 | Biblioteca | Versão | Finalidade | Atende |
 |---|---|---|---|
 | `pytest` | `~=9.1` | Execução dos testes unitários (serviços) e de integração (endpoints). | RT07 |
-| `pytest-cov` | `~=7.1` | Mede a cobertura e faz o CI falhar abaixo de 80% (`--cov-fail-under=80`). | RT07 |
+| `pytest-cov` | `~=7.1` | Mede a cobertura e faz a execução dos testes falhar abaixo de 80% (`--cov-fail-under=80`). | RT07 |
 | `httpx2` | `~=2.13.1` | Cliente HTTP do `TestClient` do FastAPI e do script de carga. Substitui o `httpx`: o Starlette emite aviso de descontinuação ao usar `httpx` com o `TestClient`. | RT06, RT15 |
 | `ruff` | `~=0.17.1` | Lint e formatação do código. | RT08 |
 | `mypy` | `~=2.4` | Checagem estática de tipos. | RT08 |

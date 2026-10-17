@@ -68,7 +68,7 @@ uv run mypy app
 - Windows; o shell padrão é PowerShell, com Git Bash disponível.
 - Não existe `python` global no PATH: use sempre `uv run python`.
 - O `uv` está instalado (winget), mas pode não estar no PATH do terminal. Se `uv` não for encontrado, adicione ao PATH da sessão: `C:SERSeANDAPPDATAocalmicrosoftwingetpackagesstral-sh.uv_microsoft.winget.source_8wekyb3d8bbwe`.
-- Repositório Git na branch `main`. Só faça commits quando o usuário pedir.
+- Repositório Git local na branch `main`. Não será usado nenhum pipeline de CI: o portão de qualidade (`ruff format`, `ruff check`, `mypy app`, `pytest --cov`) roda só localmente antes de cada commit. Só faça commits quando o usuário pedir.
 
 ## Armadilhas já verificadas (spike de 2026-10-17)
 

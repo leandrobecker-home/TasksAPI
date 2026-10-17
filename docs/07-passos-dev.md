@@ -3,7 +3,7 @@
 | Item | Valor |
 |---|---|
 | Base | [01-escopo-mvp.md](01-escopo-mvp.md) v1.3 · [02-backlog.md](02-backlog.md) v1.2 · [03-arquitetura-mvp.md](03-arquitetura-mvp.md) v1.2 |
-| Versão do documento | 1.1 |
+| Versão do documento | 1.2 |
 | Data | 2026-10-17 |
 | Status | Rascunho |
 
@@ -11,7 +11,7 @@
 
 - **Fatias verticais.** Cada entrega atravessa todas as camadas (modelo → repositório → serviço → rota → teste). Não se constrói uma camada inteira antes de usá-la.
 - **Testes junto com o código.** Nenhum commit de funcionalidade entra sem os testes dos critérios de aceite correspondentes do backlog. Para regras de negócio, o teste do serviço vem primeiro (sem HTTP, conforme RT02).
-- **Commit atômico.** Cada commit tem um único propósito, compila, passa em todos os testes e deixa o CI verde. Um commit nunca depende de um commit posterior para funcionar.
+- **Commit atômico.** Cada commit tem um único propósito, compila e passa no portão de qualidade local (seção 1.1). Um commit nunca depende de um commit posterior para funcionar.
 - **Aprovação antes de cada commit.** Nenhum commit é feito sem que o usuário veja o que será commitado, a mensagem completa e o resultado do portão de qualidade, e aprove explicitamente (seção 1.4).
 - **Rastreabilidade.** Cada commit de funcionalidade cita o RF/RT ou a RN que implementa.
 - **Documentos acompanham o código.** Mudança de decisão atualiza os documentos de `docs/` em commit `docs:` próprio, separado do código.
@@ -28,7 +28,7 @@ uv run mypy app
 uv run pytest --cov=app --cov-fail-under=80
 ```
 
-Os mesmos quatro comandos rodam no CI e bloqueiam o merge em caso de falha.
+Não será usado nenhum pipeline de CI. O portão roda apenas localmente, e qualquer falha impede o commit.
 
 ### 1.2 Padrão de commits (Conventional Commits)
 
@@ -41,7 +41,6 @@ Formato: `tipo(escopo): descrição no imperativo, em minúsculas, sem ponto fin
 | `test` | Somente testes (ex.: teste de contrato adicional). |
 | `refactor` | Mudança interna sem alterar comportamento. |
 | `build` | Dependências e empacotamento (`pyproject.toml`, `requirements.txt`). |
-| `ci` | Pipeline de CI. |
 | `chore` | Configuração e tarefas de manutenção. |
 | `docs` | Documentação, inclusive `docs/` e `README.md`. |
 | `perf` | Melhoria de desempenho. |
@@ -73,7 +72,7 @@ Vale para **todo** commit, de qualquer tipo (`feat`, `docs`, `chore`, `docs(prom
 4. **Ajustar.** Se o usuário pedir mudanças, aplicar, rodar o portão de novo e apresentar outra vez.
 5. **Commitar.** Só após a aprovação explícita, criar o commit e mostrar o hash e o `git log --stat -1`.
 
-A aprovação vale apenas para o commit apresentado: cada commit listado na etapa é apresentado e aprovado em separado. O `git push` não faz parte do fluxo e só acontece se o usuário pedir.
+A aprovação vale apenas para o commit apresentado: cada commit listado na etapa é apresentado e aprovado em separado. O `git push` só acontece se o usuário pedir.
 
 Modelo da apresentação:
 
@@ -139,15 +138,14 @@ tests/
    2. `chore(config): adiciona .env.example`
 5. **Pronto quando:** `.env` está ignorado e `.env.example` versionado.
 
-### Etapa 3 — Qualidade e CI · RT08, RT07
+### Etapa 3 — Qualidade local · RT08, RT07
 
-1. **Objetivo:** portão de qualidade automatizado desde o primeiro código.
-2. **Requisitos:** RT08 (lint, formatação, tipos, CI em um sistema operacional), RT07 (cobertura mínima).
-3. **Testes:** o próprio pipeline; um teste trivial garante que o `pytest` e a cobertura rodam.
+1. **Objetivo:** portão de qualidade local configurado e reproduzível desde o primeiro código.
+2. **Requisitos:** RT08 (lint, formatação e tipos), RT07 (cobertura mínima de 80%), ambos como comandos locais; sem pipeline de CI.
+3. **Testes:** os quatro comandos do portão passam; um erro de lint e uma queda de cobertura introduzidos de propósito são detectados.
 4. **Commits:**
    1. `build: configura ruff, mypy e pytest no pyproject`
-   2. `ci: adiciona pipeline de lint, tipos e testes com cobertura mínima de 80%`
-5. **Pronto quando:** o CI fica verde na `main` e falha ao introduzir um erro de lint de propósito.
+5. **Pronto quando:** `ruff format`, `ruff check`, `mypy app` e `pytest --cov` passam, e a falha provocada de propósito é detectada.
 
 ### Etapa 4 — Infraestrutura de testes · RT15
 
@@ -241,7 +239,7 @@ tests/
 4. **Commits:**
    1. `test: adiciona teste de ponta a ponta do fluxo principal`
    2. `docs: marca critérios concluídos da R1 no backlog`
-5. **Pronto quando:** todos os itens da R1 estão marcados e o CI está verde. Criar a tag `v0.1.0`.
+5. **Pronto quando:** todos os itens da R1 estão marcados e o portão de qualidade passa. Criar a tag `v0.1.0`.
 
 ---
 
@@ -296,11 +294,11 @@ tests/
 ### Etapa 18 — Contrato e documentação · RF15, RT04, RT13
 
 1. **Requisitos:** `/docs` completo, OpenAPI versionado, README.
-2. **Testes:** o arquivo OpenAPI versionado é igual ao gerado (falha no CI se divergir); todos os endpoints sob `/api/v1`.
+2. **Testes:** o arquivo OpenAPI versionado é igual ao gerado (o teste falha se divergir); todos os endpoints sob `/api/v1`.
 3. **Commits:**
    1. `docs(openapi): descreve parâmetros, respostas e exemplos nos endpoints (RF15)`
    2. `feat(openapi): gera e versiona a especificação OpenAPI (RT04)`
-   3. `ci: falha se a especificação OpenAPI versionada estiver desatualizada`
+   3. `test(openapi): falha se a especificação OpenAPI versionada estiver desatualizada`
    4. `docs: adiciona README com instalação, execução e exemplos (RT13)`
 
 ### Etapa 19 — Medição preliminar de desempenho · RT06 (preliminar)
@@ -330,11 +328,11 @@ tests/
 
 ### Etapa 22 — Portabilidade · RT12
 
-1. **Requisitos:** suíte passando em Windows e Linux.
-2. **Testes:** matriz de CI com os dois sistemas.
+1. **Requisitos:** RT12 — código portável a Linux; a execução em Linux não é testada.
+2. **Testes:** revisão do código contra a lista de critérios do RT12; busca automatizada por padrões problemáticos (`os.system`, separadores fixos, `open` sem `encoding`) e, onde a versão instalada do `ruff` oferecer, regras de lint equivalentes (como `PTH`).
 3. **Commits:**
-   1. `ci: executa a suíte em Windows e Linux`
-   2. `fix: remove dependências de sistema operacional no código` (somente se necessário)
+   1. `refactor: remove dependências de sistema operacional no código` (somente se encontradas na revisão)
+   2. `docs: documenta comandos de instalação e execução para Windows e Linux no README`
 
 ### Etapa 23 — Fechamento do MVP
 

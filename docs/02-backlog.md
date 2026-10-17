@@ -3,7 +3,7 @@
 | Item | Valor |
 |---|---|
 | Base | [01-escopo-mvp.md](01-escopo-mvp.md) v1.3 |
-| Versão do documento | 1.2 |
+| Versão do documento | 1.3 |
 | Data | 2026-10-17 |
 | Status | Rascunho |
 
@@ -23,7 +23,7 @@
 - [ ] `ruff check`, `ruff format --check` e `mypy` sem erros.
 - [ ] Cobertura total de pelo menos 80% (RT07).
 - [ ] Respostas de erro no formato RFC 9457, com os códigos da seção 4.5 do escopo (RT14).
-- [ ] Código revisado por outra pessoa antes do merge.
+- [ ] Alterações apresentadas e aprovadas pelo usuário antes do commit (docs/07, seção 1.4).
 
 ## Visão geral das releases
 
@@ -39,7 +39,7 @@
 - `total_tasks` na listagem de grupos foi para a R2.
 - A listagem global `GET /tasks` foi para a R2; a R1 lista tarefas apenas por grupo.
 - O esquema do banco é criado com `create_all` na R1; as migrações com Alembic entram na R2. Até lá, alterar o modelo exige recriar o banco local.
-- O CI da R1 roda em um único sistema operacional; a matriz Windows + Linux fica na R3.
+- Não será usado nenhum pipeline de CI: o portão de qualidade roda localmente antes de cada commit.
 
 ---
 
@@ -76,12 +76,12 @@
 - [ ] **RT07 — Cobertura de testes**
   - [ ] Testes unitários dos serviços e testes de integração dos endpoints.
   - [ ] Cada regra RN01–RN08 tem ao menos um teste dedicado, criado junto com a funcionalidade.
-  - [ ] `pytest --cov=app --cov-fail-under=80` configurado e executado no CI desde a R1.
+  - [ ] `pytest --cov=app --cov-fail-under=80` configurado e executado localmente antes de cada commit desde a R1.
 
-- [ ] **RT08 — Lint, formatação, tipos e CI**
+- [ ] **RT08 — Lint, formatação e tipos**
   - [ ] Configuração de `ruff` e `mypy` no `pyproject.toml`.
   - [ ] `uv run ruff check .`, `uv run ruff format --check .` e `uv run mypy app` passam sem erros.
-  - [ ] Pipeline de CI em um único sistema operacional executa lint, tipos e testes, e bloqueia o merge em caso de falha.
+  - [ ] Os quatro comandos do portão de qualidade (docs/07, seção 1.1) passam antes de cada commit.
 
 - [x] **RT10 — Configuração por ambiente**
   - [x] Toda configuração (URL do banco, nível de log, porta) lida de variáveis de ambiente.
@@ -185,7 +185,7 @@
 - [ ] Todos os itens da R1 concluídos.
 - [ ] Fluxo de ponta a ponta validado: criar grupo → criar tarefas → listar por grupo → concluir uma tarefa → excluir tarefas → excluir grupo.
 - [ ] Não é possível criar uma tarefa sem um grupo existente, por nenhum endpoint.
-- [ ] Cobertura de testes de pelo menos 80% e CI verde.
+- [ ] Cobertura de testes de pelo menos 80% e portão de qualidade sem erros.
 
 ---
 
@@ -224,7 +224,7 @@
 - [ ] **RT03 (parte 2) — Migrações versionadas com Alembic**
   - [ ] Migração inicial reproduz exatamente o esquema criado por `create_all` na R1.
   - [ ] Alembic configurado em modo *batch* para `ALTER TABLE` no SQLite.
-  - [ ] Migrações aplicam e revertem sem erro em banco vazio; teste de CI executa `upgrade head` e `downgrade base`.
+  - [ ] Migrações aplicam e revertem sem erro em banco vazio; teste automatizado executa `upgrade head` e `downgrade base`.
   - [ ] Índices de consulta (`task_group_id`, `status`, `due_date`) criados por migração.
   - [ ] `create_all` deixa de ser usado fora dos testes.
 
@@ -238,7 +238,7 @@
 - [ ] **RT04 — Contrato OpenAPI versionado**
   - [ ] Especificação OpenAPI 3.x gerada a partir do código, sem edição manual.
   - [ ] Arquivo da especificação versionado no repositório.
-  - [ ] CI falha se o arquivo versionado estiver diferente do gerado pelo código.
+  - [ ] Teste automatizado falha se o arquivo versionado estiver diferente do gerado pelo código.
   - [ ] Todos os endpoints de negócio respondem sob `/api/v1`.
 
 - [ ] **RT13 — README**
@@ -282,9 +282,13 @@
   - [ ] Desvios encontrados na medição preliminar da R2 corrigidos.
 
 - [ ] **RT12 — Portabilidade**
-  - [ ] Suíte de testes passa em Windows e em Linux.
-  - [ ] CI executa a suíte nos dois sistemas operacionais (matriz).
-  - [ ] Nenhum caminho de arquivo ou comando dependente de sistema operacional no código.
+  - [ ] Caminhos de arquivo montados com `pathlib`, sem separadores fixos (`\` ou `/`) e sem caminhos absolutos no código.
+  - [ ] Nenhum comando, shell ou chamada dependente de sistema operacional (`os.system`, `cmd`, `powershell`) no código.
+  - [ ] Arquivos de texto abertos com `encoding="utf-8"` explícito; o código não depende do tipo de fim de linha (CRLF ou LF).
+  - [ ] Nomes de módulos e arquivos referenciados com a caixa exata (o Linux diferencia maiúsculas de minúsculas).
+  - [ ] Testes independentes de sistema operacional: banco e arquivos temporários via `tmp_path`, sem caminhos fixos.
+  - [ ] README traz os comandos de instalação e execução para Windows e para Linux.
+  - [ ] A execução em Linux **não** é testada nem exigida no MVP; o objetivo é apenas não criar obstáculos a ela.
 
 ### Aceite da release R3 (critérios de sucesso do MVP)
 
