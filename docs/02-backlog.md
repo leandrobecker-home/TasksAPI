@@ -83,10 +83,10 @@
   - [ ] `uv run ruff check .`, `uv run ruff format --check .` e `uv run mypy app` passam sem erros.
   - [ ] Pipeline de CI em um único sistema operacional executa lint, tipos e testes, e bloqueia o merge em caso de falha.
 
-- [ ] **RT10 — Configuração por ambiente**
-  - [ ] Toda configuração (URL do banco, nível de log, porta) lida de variáveis de ambiente.
-  - [ ] `.env.example` versionado com todas as variáveis e valores de exemplo.
-  - [ ] `.env` no `.gitignore`; nenhum segredo no repositório.
+- [x] **RT10 — Configuração por ambiente**
+  - [x] Toda configuração (URL do banco, nível de log, porta) lida de variáveis de ambiente.
+  - [x] `.env.example` versionado com todas as variáveis e valores de exemplo.
+  - [x] `.env` no `.gitignore`; nenhum segredo no repositório.
 
 - [ ] **RT14 — Tratamento de erros (RFC 9457)**
   - [ ] Toda resposta de erro usa `application/problem+json` com `type`, `title`, `status`, `detail` e `instance`.
