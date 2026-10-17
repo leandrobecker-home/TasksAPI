@@ -1,0 +1,86 @@
+# =============================================================================
+# Tasks API — .gitignore
+# Base: docs/03-arquitetura-mvp.md
+#
+# Devem ser VERSIONADOS (não ignorar): .python-version, pyproject.toml,
+# uv.lock, requirements.txt, .env.example, migrations/ (Alembic) e a
+# especificação OpenAPI gerada.
+# =============================================================================
+
+# --- Ambiente virtual (uv) ---------------------------------------------------
+.venv/
+venv/
+env/
+
+# --- Bytecode e artefatos do Python -----------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Build e empacotamento ---------------------------------------------------
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+wheels/
+pip-wheel-metadata/
+
+# --- Configuração e segredos (RT10) ------------------------------------------
+# Só o .env.example vai para o repositório.
+.env
+.env.*
+!.env.example
+
+# --- Banco de dados SQLite (RT03) --------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+data/
+
+# --- Testes e cobertura (RT07) -----------------------------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+junit*.xml
+
+# --- Lint e tipos (RT08) -----------------------------------------------------
+.ruff_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# --- Logs (RT09) -------------------------------------------------------------
+logs/
+*.log
+
+# --- Testes de carga (RT06) --------------------------------------------------
+# Resultados gerados pelo script; o script em si é versionado.
+loadtest-results/
+
+# --- Editores e IDEs ---------------------------------------------------------
+.idea/
+*.swp
+*.swo
+*~
+# VS Code: ignora configurações pessoais, mantém as compartilhadas.
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# --- Claude Code (configurações locais) ---------------------------------------
+.claude/settings.local.json
+
+# --- Sistema operacional -----------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
