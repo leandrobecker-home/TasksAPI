@@ -9,6 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.routing import Match
 
 from app.errors import DomainError
 from app.schemas.problem import PROBLEM_MEDIA_TYPE, ProblemDetails
@@ -35,6 +36,25 @@ def _location(loc: Sequence[int | str]) -> str:
 def describe_validation_errors(errors: Sequence[Mapping[str, Any]]) -> str:
     """Summarise validation errors as ``field: message`` pairs."""
     return "; ".join(f"{_location(error['loc'])}: {error['msg']}" for error in errors)
+
+
+_PROBED_METHODS = ("DELETE", "GET", "HEAD", "PATCH", "POST", "PUT")
+
+
+def _allowed_methods(request: Request) -> str | None:
+    """List every method the requested path supports, for the ``Allow`` header.
+
+    FastAPI registers one route per method, and Starlette reports only the first
+    route it finds, so a path served by GET and PATCH would advertise just GET.
+    Instead of reading the routes' internals (which FastAPI wraps for included
+    routers), each method is tried against the public ``matches`` interface.
+    """
+    allowed = []
+    for method in _PROBED_METHODS:
+        scope = {**request.scope, "method": method}
+        if any(route.matches(scope)[0] is Match.FULL for route in request.app.routes):
+            allowed.append(method)
+    return ", ".join(allowed) or None
 
 
 def _http_title(status_code: int) -> str:
@@ -135,12 +155,17 @@ def register_error_handlers(app: FastAPI) -> None:
     async def handle_http_exception(
         request: Request, exc: StarletteHTTPException
     ) -> JSONResponse:
+        headers = dict(exc.headers or {})
+        if exc.status_code == HTTPStatus.METHOD_NOT_ALLOWED:
+            allowed = _allowed_methods(request)
+            if allowed:
+                headers["Allow"] = allowed
         return problem_response(
             request,
             status_code=exc.status_code,
             title=_http_title(exc.status_code),
             detail=_http_detail(request, exc.status_code, str(exc.detail)),
-            headers=exc.headers,
+            headers=headers,
         )
 
     @app.exception_handler(Exception)

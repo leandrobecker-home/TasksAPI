@@ -146,3 +146,42 @@ def test_application_keeps_serving_after_a_500(
     client_with_failures.get("/boom")
 
     assert client_with_failures.get("/health").status_code == 200
+
+
+def test_405_lists_every_method_the_path_supports(app: FastAPI) -> None:
+    """FastAPI keeps one route per method; Allow must still list all of them."""
+
+    @app.get("/things/{thing_id}")
+    def read_thing(thing_id: str) -> dict[str, str]:
+        return {"id": thing_id}
+
+    @app.patch("/things/{thing_id}")
+    def change_thing(thing_id: str) -> dict[str, str]:
+        return {"id": thing_id}
+
+    @app.delete("/things/{thing_id}")
+    def remove_thing(thing_id: str) -> dict[str, str]:
+        return {"id": thing_id}
+
+    response = TestClient(app).post("/things/1")
+
+    assert response.status_code == 405
+    assert response.headers["allow"] == "DELETE, GET, PATCH"
+
+
+def test_405_allow_is_limited_to_the_path_that_was_requested(app: FastAPI) -> None:
+    @app.get("/only-get")
+    def only_get() -> None:
+        return None
+
+    @app.post("/other-path")
+    def other_path() -> None:
+        return None
+
+    response = TestClient(app).put("/only-get")
+
+    assert response.headers["allow"] == "GET"
+
+
+def test_404_has_no_allow_header(client_with_failures: TestClient) -> None:
+    assert "allow" not in client_with_failures.get("/does-not-exist").headers
