@@ -47,12 +47,12 @@
 
 ### Fundação técnica
 
-- [ ] **RT01 — Plataforma Python 3.14 com `uv`**
+- [x] **RT01 — Plataforma Python 3.14 com `uv`**
   - [x] `.python-version` contém `3.14` e está versionado.
   - [x] `pyproject.toml` e `uv.lock` versionados; `uv sync` instala tudo a partir de um ambiente limpo.
   - [x] `uv run python --version` retorna `Python 3.14.x`.
-  - [ ] Um único comando documentado sobe a API localmente.
-  - [ ] Teste de fumaça (*smoke test*) sobe a aplicação e responde `200` em `GET /health`.
+  - [x] Um único comando documentado sobe a API localmente.
+  - [x] Teste de fumaça (*smoke test*) sobe a aplicação e responde `200` em `GET /health`.
 
 - [ ] **RT02 — Arquitetura em camadas**
   - [ ] Código separado em rotas, serviços e repositórios.
@@ -176,10 +176,10 @@
 
 ### Operação
 
-- [ ] **RF14 — Health check** · `GET /health`
-  - [ ] Retorna `200` com `{"status": "ok", "database": "ok"}` quando a aplicação e o banco respondem.
-  - [ ] Com o banco indisponível, retorna `503` com `"database": "error"`.
-  - [ ] Não exige o prefixo `/api/v1`.
+- [x] **RF14 — Health check** · `GET /health`
+  - [x] Retorna `200` com `{"status": "ok", "database": "ok"}` quando a aplicação e o banco respondem.
+  - [x] Com o banco indisponível, retorna `503` com `"database": "error"`.
+  - [x] Não exige o prefixo `/api/v1`.
 
 ### Aceite da release R1
 
