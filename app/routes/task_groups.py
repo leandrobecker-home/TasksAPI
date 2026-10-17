@@ -1,6 +1,7 @@
 """Task group endpoints (RF01-RF05), served under ``/api/v1``."""
 
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Request, Response, status
 
@@ -55,3 +56,13 @@ def list_task_groups(
     groups, total = service.list(search=q, pagination=pagination)
     items = [TaskGroupRead.model_validate(group) for group in groups]
     return build_page(items, pagination, total)
+
+
+@router.get(
+    "/{group_id}",
+    response_model=TaskGroupRead,
+    summary="Get a task group",
+)
+def get_task_group(group_id: UUID, service: ServiceDep) -> TaskGroup:
+    """Return one task group, or 404 if it does not exist."""
+    return service.get(group_id)
