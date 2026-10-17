@@ -1,0 +1,45 @@
+"""Task endpoints (RF06-RF13), served under ``/api/v1``.
+
+Tasks are created and listed through their group, and read, changed and deleted
+directly by id, so there are two routers.
+"""
+
+from typing import Annotated
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, Request, Response, status
+
+from app.models import Task
+from app.routes.dependencies import SessionDep
+from app.schemas.task import TaskCreate, TaskRead
+from app.services.task import TaskService
+
+group_tasks_router = APIRouter(prefix="/task-groups/{group_id}/tasks", tags=["tasks"])
+router = APIRouter(prefix="/tasks", tags=["tasks"])
+
+
+def get_task_service(session: SessionDep) -> TaskService:
+    return TaskService(session)
+
+
+ServiceDep = Annotated[TaskService, Depends(get_task_service)]
+
+
+@group_tasks_router.post(
+    "",
+    status_code=status.HTTP_201_CREATED,
+    response_model=TaskRead,
+    summary="Create a task in a group",
+)
+def create_task(
+    group_id: UUID,
+    data: TaskCreate,
+    request: Request,
+    response: Response,
+    service: ServiceDep,
+) -> Task:
+    """Create a task in the group. A task cannot exist outside a group."""
+    task = service.create(group_id, data)
+    api_prefix = request.url.path.partition("/task-groups/")[0]
+    response.headers["Location"] = f"{api_prefix}/tasks/{task.id}"
+    return task
