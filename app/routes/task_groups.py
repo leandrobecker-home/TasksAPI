@@ -2,10 +2,11 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi import APIRouter, Depends, Query, Request, Response, status
 
 from app.models import TaskGroup
-from app.routes.dependencies import SessionDep
+from app.routes.dependencies import PaginationDep, SessionDep
+from app.schemas.common import Page, build_page
 from app.schemas.task_group import TaskGroupCreate, TaskGroupRead
 from app.services.task_group import TaskGroupService
 
@@ -35,3 +36,22 @@ def create_task_group(
     group = service.create(data)
     response.headers["Location"] = f"{request.url.path}/{group.id}"
     return group
+
+
+@router.get(
+    "",
+    response_model=Page[TaskGroupRead],
+    summary="List task groups",
+)
+def list_task_groups(
+    service: ServiceDep,
+    pagination: PaginationDep,
+    q: Annotated[
+        str | None,
+        Query(description="Keep only groups whose name contains this text."),
+    ] = None,
+) -> Page[TaskGroupRead]:
+    """List task groups, ordered by name, one page at a time."""
+    groups, total = service.list(search=q, pagination=pagination)
+    items = [TaskGroupRead.model_validate(group) for group in groups]
+    return build_page(items, pagination, total)
