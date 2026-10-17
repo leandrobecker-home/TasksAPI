@@ -3,7 +3,7 @@
 | Item | Valor |
 |---|---|
 | Base | [01-escopo-mvp.md](01-escopo-mvp.md) v1.3 · [02-backlog.md](02-backlog.md) v1.2 · [03-arquitetura-mvp.md](03-arquitetura-mvp.md) v1.2 |
-| Versão do documento | 1.4 |
+| Versão do documento | 1.5 |
 | Data | 2026-10-17 |
 | Status | Rascunho |
 
@@ -214,12 +214,14 @@ tests/
 ### Etapa 9 — Task: persistência · RT03, RN03
 
 1. **Objetivo:** modelo e repositório de tarefas com a chave estrangeira garantida, e a recusa de excluir um grupo que ainda tem tarefas.
-2. **Requisitos:** RT03 (chave estrangeira obrigatória), RN02, RN03.
-3. **Testes:** inserir tarefa com grupo inexistente é rejeitado pelo banco; excluir grupo com tarefas é bloqueado pelo banco; `DELETE /task-groups/{id}` de um grupo com tarefas responde `409` e não exclui.
+2. **Requisitos:** RT03 (chave estrangeira obrigatória, consultas só nos repositórios), RN02, RN03.
+3. **Testes:** inserir tarefa com grupo inexistente é rejeitado pelo banco; excluir grupo com tarefas é bloqueado pelo banco; `DELETE /task-groups/{id}` de um grupo com tarefas responde `409` e não exclui; teste de arquitetura vigia que as consultas ficam nos repositórios.
 4. **Commits:**
    1. `feat(tasks): adiciona modelo Task com chave estrangeira para TaskGroup`
    2. `feat(tasks): adiciona repositório de Task`
    3. `feat(task-groups): recusa excluir grupo que ainda tem tarefas (RN03)`
+   4. `test: garante que as consultas ao banco ficam só nos repositórios`
+   5. `docs: marca critérios do RF05, RT03 e RT15 no backlog`
 5. **Pronto quando:** os critérios do RT03 relativos a tarefa e o critério da RN03 do RF05 estão marcados.
 
 ### Etapa 10 — Task: regras e endpoints · RF06, RF07, RF11–RF13

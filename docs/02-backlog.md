@@ -59,14 +59,14 @@
   - [ ] Serviços não importam nada do framework web (verificado em revisão ou por regra de import).
   - [ ] Regras de negócio (RN01–RN08) implementadas na camada de serviço e testadas sem subir o servidor HTTP.
 
-- [ ] **RT03 — Persistência com ORM (esquema por `create_all` na R1)**
-  - [ ] Tabelas `task_groups` e `tasks` criadas por `SQLModel.metadata.create_all`.
-  - [ ] `tasks.task_group_id` é chave estrangeira obrigatória para `task_groups.id`.
-  - [ ] `PRAGMA foreign_keys=ON` executado em toda conexão; teste prova que inserir tarefa com grupo inexistente é rejeitado pelo banco.
+- [x] **RT03 — Persistência com ORM (esquema por `create_all` na R1)**
+  - [x] Tabelas `task_groups` e `tasks` criadas por `SQLModel.metadata.create_all`.
+  - [x] `tasks.task_group_id` é chave estrangeira obrigatória para `task_groups.id`.
+  - [x] `PRAGMA foreign_keys=ON` executado em toda conexão; teste prova que inserir tarefa com grupo inexistente é rejeitado pelo banco.
   - [x] Coluna interna `normalized_name` (`strip` + `casefold`) com índice único; teste prova que `Ação` e `AÇÃO` colidem.
   - [x] Duas criações concorrentes do mesmo nome: uma retorna `201` e a outra `409` (a unicidade é garantida pelo banco, não só por consulta prévia).
   - [x] Datetimes gravados em UTC e lidos com fuso UTC; teste de ida e volta.
-  - [ ] Banco SQLite configurado por variável de ambiente; nenhuma consulta SQL fora da camada de repositório.
+  - [x] Banco SQLite configurado por variável de ambiente (`TASKS_DATABASE_URL`); nenhuma consulta SQL fora da camada de repositório (vigiado por teste de arquitetura).
 
 - [ ] **RT05 — Formato de dados**
   - [x] Requisições e respostas em JSON UTF-8 (`Content-Type: application/json`).
@@ -96,13 +96,13 @@
   - [x] Erro `500` não expõe stack trace, SQL ou caminhos internos.
   - [ ] Cada código da tabela da seção 4.5 do escopo tem teste de contrato dedicado (faltam o `413`, na Etapa 17; o `503` é o do `GET /health`).
 
-- [ ] **RT15 — Estratégia de testes**
+- [x] **RT15 — Estratégia de testes**
   - [x] `pytest` configurado no `pyproject.toml` (diretório `tests/`, separação `unit` e `integration`).
   - [x] Cada teste usa banco SQLite próprio (em memória ou arquivo temporário), criado e descartado por fixture.
   - [x] Os testes passam em qualquer ordem e em execução repetida.
   - [x] Fixture de cliente HTTP (`TestClient` com `httpx2`) compartilhada.
   - [x] Fábrica de `TaskGroup` compartilhada.
-  - [ ] Fábrica de `Task` compartilhada (criada junto com o modelo, na Etapa 9).
+  - [x] Fábrica de `Task` compartilhada (criada junto com o modelo, na Etapa 9).
 
 ### TaskGroups
 
@@ -133,9 +133,9 @@
   - [x] Mesmas validações de tamanho do RF01.
   - [x] Grupo inexistente retorna `404`.
 
-- [ ] **RF05 — Excluir grupo** · `DELETE /task-groups/{id}`
+- [x] **RF05 — Excluir grupo** · `DELETE /task-groups/{id}`
   - [x] Grupo sem tarefas retorna `204` e deixa de ser encontrado (`GET` retorna `404`).
-  - [ ] Grupo com ao menos uma tarefa retorna `409` e não é excluído (RN03).
+  - [x] Grupo com ao menos uma tarefa retorna `409` e não é excluído (RN03).
   - [x] Grupo inexistente retorna `404`.
 
 ### Tasks
