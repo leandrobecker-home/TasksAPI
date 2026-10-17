@@ -13,7 +13,7 @@
 
 MVP de uma API REST para gerenciamento de tarefas (Tasks) agrupadas em grupos (TaskGroups), em Python 3.14. Toda Task pertence a exatamente um TaskGroup.
 
-Fase atual: documentação e spike técnico concluídos; código ainda não iniciado (`app/` vazia). Começar pela R1 do backlog.
+Fase atual: implementação da R1 em andamento, seguindo `docs/07-passos-dev.md`. Etapas 1 a 5 concluídas (esqueleto, configuração, qualidade local, infraestrutura de testes, aplicação mínima com `GET /health`).
 
 ## Documentação (fonte da verdade)
 
@@ -58,6 +58,7 @@ Fora de escopo no MVP, não implemente: autenticação, multiusuário, Docker, d
 uv venv --python 3.14
 uv pip install -r requirements.txt
 uv run pytest --cov=app --cov-fail-under=80
+uv run python -m app
 uv run ruff check .
 uv run ruff format .
 uv run mypy app

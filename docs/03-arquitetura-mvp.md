@@ -3,7 +3,7 @@
 | Item | Valor |
 |---|---|
 | Base | [01-escopo-mvp.md](01-escopo-mvp.md) v1.3 · [02-backlog.md](02-backlog.md) v1.2 |
-| Versão do documento | 1.3 |
+| Versão do documento | 1.4 |
 | Data | 2026-10-17 |
 | Status | Rascunho |
 
@@ -116,6 +116,28 @@ Para registrar as dependências no `pyproject.toml` e gerar o `uv.lock`:
 ```bash
 uv add -r requirements.txt
 ```
+
+### 7.1 Subir a API
+
+```bash
+uv run python -m app
+```
+
+O comando inicia o `uvicorn` com a application factory (`app.main:create_app`) e usa o host, a porta e o nível de log das variáveis `TASKS_HOST`, `TASKS_PORT` e `TASKS_LOG_LEVEL` (padrão `http://127.0.0.1:8000`; ver `.env.example`). Para conferir:
+
+```bash
+curl http://127.0.0.1:8000/health      # {"status":"ok","database":"ok"}
+```
+
+A documentação interativa fica em `http://127.0.0.1:8000/docs`.
+
+Também é possível chamar o `uvicorn` diretamente; nesse caso host e porta vêm dos parâmetros dele, e não das variáveis `TASKS_HOST` e `TASKS_PORT`:
+
+```bash
+uv run uvicorn app.main:create_app --factory --port 8000
+```
+
+A fábrica é chamada sob demanda (`--factory`), sem um objeto `app` criado no nível do módulo, para que importar `app.main` não leia o `.env` nem monte o engine.
 
 ## 8. Alternativas descartadas
 

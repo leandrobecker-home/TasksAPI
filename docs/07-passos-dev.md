@@ -3,7 +3,7 @@
 | Item | Valor |
 |---|---|
 | Base | [01-escopo-mvp.md](01-escopo-mvp.md) v1.3 · [02-backlog.md](02-backlog.md) v1.2 · [03-arquitetura-mvp.md](03-arquitetura-mvp.md) v1.2 |
-| Versão do documento | 1.2 |
+| Versão do documento | 1.3 |
 | Data | 2026-10-17 |
 | Status | Rascunho |
 
@@ -163,11 +163,13 @@ tests/
 2. **Requisitos:** RF14, critério de arranque do RT01.
 3. **Testes:** `GET /health` retorna `200` com banco ok; `503` com o banco indisponível; teste de fumaça sobe a aplicação.
 4. **Commits:**
-   1. `feat(db): adiciona engine, sessão e PRAGMA foreign_keys=ON em toda conexão` (com teste que prova o PRAGMA ativo)
+   1. `feat(db): adiciona engine e PRAGMA foreign_keys=ON em toda conexão` (com teste que prova o PRAGMA ativo)
    2. `feat(api): adiciona application factory do FastAPI`
    3. `feat(health): adiciona endpoint GET /health (RF14)`
-   4. `docs: registra comando único para subir a API`
-5. **Pronto quando:** `uv run uvicorn app.main:app` responde em `/health`.
+   4. `feat(api): adiciona comando único para subir a API com python -m app` (com teste de fumaça)
+   5. `docs: registra o comando para subir a API`
+   6. `docs: marca critérios do RF14 e do RT01 no backlog`
+5. **Pronto quando:** `uv run python -m app` responde em `/health`. A fábrica é chamada sob demanda (`uvicorn app.main:create_app --factory`), sem criar um objeto `app` no nível do módulo, para que importar `app.main` não leia o `.env` nem monte o engine.
 
 ### Etapa 6 — Tratamento de erros e paginação · RT14, RT05
 
