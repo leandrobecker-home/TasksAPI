@@ -48,9 +48,9 @@
 ### Fundação técnica
 
 - [ ] **RT01 — Plataforma Python 3.14 com `uv`**
-  - [ ] `.python-version` contém `3.14` e está versionado.
-  - [ ] `pyproject.toml` e `uv.lock` versionados; `uv sync` instala tudo a partir de um ambiente limpo.
-  - [ ] `uv run python --version` retorna `Python 3.14.x`.
+  - [x] `.python-version` contém `3.14` e está versionado.
+  - [x] `pyproject.toml` e `uv.lock` versionados; `uv sync` instala tudo a partir de um ambiente limpo.
+  - [x] `uv run python --version` retorna `Python 3.14.x`.
   - [ ] Um único comando documentado sobe a API localmente.
   - [ ] Teste de fumaça (*smoke test*) sobe a aplicação e responde `200` em `GET /health`.
 
