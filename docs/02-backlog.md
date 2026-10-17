@@ -64,7 +64,7 @@
   - [ ] `tasks.task_group_id` é chave estrangeira obrigatória para `task_groups.id`.
   - [ ] `PRAGMA foreign_keys=ON` executado em toda conexão; teste prova que inserir tarefa com grupo inexistente é rejeitado pelo banco.
   - [x] Coluna interna `normalized_name` (`strip` + `casefold`) com índice único; teste prova que `Ação` e `AÇÃO` colidem.
-  - [ ] Duas criações concorrentes do mesmo nome: uma retorna `201` e a outra `409` (a unicidade é garantida pelo banco, não só por consulta prévia).
+  - [x] Duas criações concorrentes do mesmo nome: uma retorna `201` e a outra `409` (a unicidade é garantida pelo banco, não só por consulta prévia).
   - [x] Datetimes gravados em UTC e lidos com fuso UTC; teste de ida e volta.
   - [ ] Banco SQLite configurado por variável de ambiente; nenhuma consulta SQL fora da camada de repositório.
 
@@ -106,37 +106,37 @@
 
 ### TaskGroups
 
-- [ ] **RF01 — Criar grupo** · `POST /task-groups`
-  - [ ] Com `name` válido, retorna `201`, o grupo criado e o header `Location: /api/v1/task-groups/{id}`.
-  - [ ] `id`, `created_at` e `updated_at` são gerados pelo servidor; valores enviados pelo cliente são ignorados (RN08).
-  - [ ] Campo desconhecido no corpo retorna `422` (RN08).
-  - [ ] Espaços nas pontas de `name` são removidos antes de salvar.
-  - [ ] `name` ausente, vazio ou com mais de 100 caracteres retorna `422`.
-  - [ ] `description` com mais de 500 caracteres retorna `422`.
-  - [ ] `name` já existente, inclusive com outra combinação de maiúsculas/minúsculas ou acentos, retorna `409` (RN01).
+- [x] **RF01 — Criar grupo** · `POST /task-groups`
+  - [x] Com `name` válido, retorna `201`, o grupo criado e o header `Location: /api/v1/task-groups/{id}`.
+  - [x] `id`, `created_at` e `updated_at` são gerados pelo servidor; valores enviados pelo cliente são ignorados (RN08).
+  - [x] Campo desconhecido no corpo retorna `422` (RN08).
+  - [x] Espaços nas pontas de `name` são removidos antes de salvar.
+  - [x] `name` ausente, vazio ou com mais de 100 caracteres retorna `422`.
+  - [x] `description` com mais de 500 caracteres retorna `422`.
+  - [x] `name` já existente, inclusive com outra combinação de maiúsculas/minúsculas ou acentos, retorna `409` (RN01).
 
-- [ ] **RF02 — Listar grupos** · `GET /task-groups`
-  - [ ] Retorna `200` no formato de listagem (`items`, `page`, `page_size`, `total`).
-  - [ ] Paginação com padrão `page_size = 20` e máximo `100`; valor acima do máximo ou não positivo retorna `400`.
-  - [ ] Parâmetro `q` filtra por `name`, sem diferenciar maiúsculas/minúsculas.
-  - [ ] Sem grupos cadastrados, retorna `items: []` e `total: 0`.
+- [x] **RF02 — Listar grupos** · `GET /task-groups`
+  - [x] Retorna `200` no formato de listagem (`items`, `page`, `page_size`, `total`).
+  - [x] Paginação com padrão `page_size = 20` e máximo `100`; valor acima do máximo ou não positivo retorna `400`.
+  - [x] Parâmetro `q` filtra por `name`, sem diferenciar maiúsculas/minúsculas.
+  - [x] Sem grupos cadastrados, retorna `items: []` e `total: 0`.
 
-- [ ] **RF03 — Consultar grupo** · `GET /task-groups/{id}`
-  - [ ] Grupo existente retorna `200` com todos os campos.
-  - [ ] `id` inexistente retorna `404`.
-  - [ ] `id` que não é UUID válido retorna `422`.
+- [x] **RF03 — Consultar grupo** · `GET /task-groups/{id}`
+  - [x] Grupo existente retorna `200` com todos os campos.
+  - [x] `id` inexistente retorna `404`.
+  - [x] `id` que não é UUID válido retorna `422`.
 
-- [ ] **RF04 — Atualizar grupo** · `PATCH /task-groups/{id}`
-  - [ ] Altera apenas os campos enviados (`name`, `description`) e retorna `200` com o grupo atualizado.
-  - [ ] `updated_at` muda; `created_at` permanece igual.
-  - [ ] Novo `name` igual ao de outro grupo retorna `409` (RN01); manter o próprio nome não é conflito.
-  - [ ] Mesmas validações de tamanho do RF01.
-  - [ ] Grupo inexistente retorna `404`.
+- [x] **RF04 — Atualizar grupo** · `PATCH /task-groups/{id}`
+  - [x] Altera apenas os campos enviados (`name`, `description`) e retorna `200` com o grupo atualizado.
+  - [x] `updated_at` muda; `created_at` permanece igual.
+  - [x] Novo `name` igual ao de outro grupo retorna `409` (RN01); manter o próprio nome não é conflito.
+  - [x] Mesmas validações de tamanho do RF01.
+  - [x] Grupo inexistente retorna `404`.
 
 - [ ] **RF05 — Excluir grupo** · `DELETE /task-groups/{id}`
-  - [ ] Grupo sem tarefas retorna `204` e deixa de ser encontrado (`GET` retorna `404`).
+  - [x] Grupo sem tarefas retorna `204` e deixa de ser encontrado (`GET` retorna `404`).
   - [ ] Grupo com ao menos uma tarefa retorna `409` e não é excluído (RN03).
-  - [ ] Grupo inexistente retorna `404`.
+  - [x] Grupo inexistente retorna `404`.
 
 ### Tasks
 

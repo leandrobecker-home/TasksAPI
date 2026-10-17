@@ -3,7 +3,7 @@
 | Item | Valor |
 |---|---|
 | Base | [01-escopo-mvp.md](01-escopo-mvp.md) v1.3 · [02-backlog.md](02-backlog.md) v1.2 · [03-arquitetura-mvp.md](03-arquitetura-mvp.md) v1.2 |
-| Versão do documento | 1.3 |
+| Versão do documento | 1.4 |
 | Data | 2026-10-17 |
 | Status | Rascunho |
 
@@ -196,27 +196,31 @@ tests/
 ### Etapa 8 — TaskGroup: regras e endpoints · RF01–RF05
 
 1. **Objetivo:** CRUD completo de grupos.
-2. **Requisitos:** RF01 a RF05, RN01, RN03, RN08.
-3. **Testes:** unitários do serviço (RN01, RN03) e de integração por endpoint, cobrindo todos os critérios de aceite do backlog.
+2. **Requisitos:** RF01 a RF05, RN01, RN08. A RN03 (recusar a exclusão de grupo com tarefas) depende da tabela de tarefas e foi para a Etapa 9.
+3. **Testes:** unitários do serviço (RN01) e de integração por endpoint, cobrindo os critérios de aceite do backlog, inclusive criações simultâneas do mesmo nome (uma `201`, as demais `409`).
 4. **Commits:**
    1. `feat(task-groups): adiciona schemas de entrada e saída`
-   2. `feat(task-groups): adiciona serviço com regras RN01 e RN03`
+   2. `feat(task-groups): adiciona serviço com a regra RN01`
    3. `feat(task-groups): adiciona POST /task-groups (RF01)`
    4. `feat(task-groups): adiciona GET /task-groups com paginação e busca (RF02)`
    5. `feat(task-groups): adiciona GET /task-groups/{id} (RF03)`
-   6. `feat(task-groups): adiciona PATCH /task-groups/{id} (RF04)`
-   7. `feat(task-groups): adiciona DELETE /task-groups/{id} (RF05)`
-5. **Pronto quando:** RF01 a RF05 estão com todos os critérios marcados.
+   6. `fix(errors): lista todos os métodos permitidos no cabeçalho Allow do 405` (defeito descoberto ao testar o `PUT`)
+   7. `feat(task-groups): adiciona PATCH /task-groups/{id} (RF04)`
+   8. `docs: torna portátil a instrução do uv no CLAUDE.md` (correção avulsa)
+   9. `feat(task-groups): adiciona DELETE /task-groups/{id} (RF05)`
+   10. `docs: marca critérios do RF01 ao RF05 no backlog`
+5. **Pronto quando:** RF01 a RF04 e os critérios do RF05 que não dependem de tarefas estão marcados. O critério da RN03 fica aberto até a Etapa 9.
 
-### Etapa 9 — Task: persistência · RT03
+### Etapa 9 — Task: persistência · RT03, RN03
 
-1. **Objetivo:** modelo e repositório de tarefas com a chave estrangeira garantida.
-2. **Requisitos:** RT03 (chave estrangeira obrigatória), RN02.
-3. **Testes:** inserir tarefa com grupo inexistente é rejeitado pelo banco; excluir grupo com tarefas é bloqueado.
+1. **Objetivo:** modelo e repositório de tarefas com a chave estrangeira garantida, e a recusa de excluir um grupo que ainda tem tarefas.
+2. **Requisitos:** RT03 (chave estrangeira obrigatória), RN02, RN03.
+3. **Testes:** inserir tarefa com grupo inexistente é rejeitado pelo banco; excluir grupo com tarefas é bloqueado pelo banco; `DELETE /task-groups/{id}` de um grupo com tarefas responde `409` e não exclui.
 4. **Commits:**
    1. `feat(tasks): adiciona modelo Task com chave estrangeira para TaskGroup`
    2. `feat(tasks): adiciona repositório de Task`
-5. **Pronto quando:** os critérios do RT03 relativos a tarefa estão marcados.
+   3. `feat(task-groups): recusa excluir grupo que ainda tem tarefas (RN03)`
+5. **Pronto quando:** os critérios do RT03 relativos a tarefa e o critério da RN03 do RF05 estão marcados.
 
 ### Etapa 10 — Task: regras e endpoints · RF06, RF07, RF11–RF13
 
