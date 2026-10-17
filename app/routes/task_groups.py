@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, Query, Request, Response, status
 from app.models import TaskGroup
 from app.routes.dependencies import PaginationDep, SessionDep
 from app.schemas.common import Page, build_page
-from app.schemas.task_group import TaskGroupCreate, TaskGroupRead
+from app.schemas.task_group import TaskGroupCreate, TaskGroupRead, TaskGroupUpdate
 from app.services.task_group import TaskGroupService
 
 router = APIRouter(prefix="/task-groups", tags=["task-groups"])
@@ -66,3 +66,15 @@ def list_task_groups(
 def get_task_group(group_id: UUID, service: ServiceDep) -> TaskGroup:
     """Return one task group, or 404 if it does not exist."""
     return service.get(group_id)
+
+
+@router.patch(
+    "/{group_id}",
+    response_model=TaskGroupRead,
+    summary="Update a task group",
+)
+def update_task_group(
+    group_id: UUID, data: TaskGroupUpdate, service: ServiceDep
+) -> TaskGroup:
+    """Change only the fields sent; the others keep their values."""
+    return service.update(group_id, data)
