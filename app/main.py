@@ -9,8 +9,9 @@ from sqlalchemy import Engine
 from app.config import Settings, get_settings
 from app.db import create_db_engine, create_tables
 from app.error_handlers import register_error_handlers
-from app.routes import health
+from app.routes import health, task_groups
 
+API_PREFIX = "/api/v1"
 API_TITLE = "Tasks API"
 API_VERSION = "0.1.0"
 API_DESCRIPTION = "REST API for managing tasks grouped into task groups."
@@ -49,4 +50,5 @@ def create_app(
     app.state.engine = db_engine
     register_error_handlers(app)
     app.include_router(health.router)
+    app.include_router(task_groups.router, prefix=API_PREFIX)
     return app
