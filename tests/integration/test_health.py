@@ -33,8 +33,10 @@ def test_health_is_service_unavailable_when_the_database_is_down(
     engine = create_db_engine(f"sqlite:///{unreachable}")
     settings = Settings(_env_file=None, database_url=f"sqlite:///{unreachable}")
 
-    with TestClient(create_app(settings, engine)) as broken_client:
-        response = broken_client.get("/health")
+    # No lifespan: the app is up while its database is unreachable, as when the
+    # database fails after a successful start. At startup the app refuses to run.
+    broken_client = TestClient(create_app(settings, engine))
+    response = broken_client.get("/health")
 
     engine.dispose()
     assert response.status_code == 503

@@ -51,7 +51,9 @@ def test_engine_created_by_the_factory_is_disposed_on_shutdown(
 ) -> None:
     app = create_app(settings)
 
-    with patch.object(app.state.engine, "dispose") as dispose:
+    with patch.object(
+        app.state.engine, "dispose", wraps=app.state.engine.dispose
+    ) as dispose:
         with TestClient(app):
             dispose.assert_not_called()
 
@@ -63,7 +65,10 @@ def test_injected_engine_is_not_disposed_on_shutdown(
 ) -> None:
     app = create_app(settings, engine)
 
-    with patch.object(engine, "dispose") as dispose, TestClient(app):
+    with (
+        patch.object(engine, "dispose", wraps=engine.dispose) as dispose,
+        TestClient(app),
+    ):
         pass
 
     dispose.assert_not_called()

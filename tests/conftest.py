@@ -10,10 +10,10 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import Engine
-from sqlmodel import Session, SQLModel
+from sqlmodel import Session
 
 from app.config import Settings
-from app.db import create_db_engine
+from app.db import create_db_engine, create_tables
 from app.main import create_app
 
 
@@ -27,7 +27,7 @@ def engine() -> Iterator[Engine]:
     and foreign keys enforced.
     """
     test_engine = create_db_engine("sqlite://")
-    SQLModel.metadata.create_all(test_engine)
+    create_tables(test_engine)
     yield test_engine
     test_engine.dispose()
 

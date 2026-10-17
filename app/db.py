@@ -11,7 +11,9 @@ from typing import Any
 from sqlalchemy import Engine, event
 from sqlalchemy.engine import make_url
 from sqlalchemy.pool import ConnectionPoolEntry, StaticPool
-from sqlmodel import create_engine
+from sqlmodel import SQLModel, create_engine
+
+from app import models as _models  # noqa: F401  (registers every table on the metadata)
 
 _IN_MEMORY_DATABASES = (None, "", ":memory:")
 
@@ -48,3 +50,12 @@ def create_db_engine(database_url: str) -> Engine:
     if is_sqlite:
         event.listen(engine, "connect", _enable_sqlite_foreign_keys)
     return engine
+
+
+def create_tables(engine: Engine) -> None:
+    """Create every table that does not exist yet.
+
+    This is how the schema is built in release R1; versioned migrations with
+    Alembic replace it in R2. Existing tables and their data are left alone.
+    """
+    SQLModel.metadata.create_all(engine)

@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from sqlalchemy import Engine
 
 from app.config import Settings, get_settings
-from app.db import create_db_engine
+from app.db import create_db_engine, create_tables
 from app.error_handlers import register_error_handlers
 from app.routes import health
 
@@ -34,6 +34,7 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+        create_tables(db_engine)
         yield
         if owns_engine:
             db_engine.dispose()

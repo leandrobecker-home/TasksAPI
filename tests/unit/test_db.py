@@ -3,10 +3,10 @@
 from pathlib import Path
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 from sqlalchemy.exc import IntegrityError
 
-from app.db import create_db_engine
+from app.db import create_db_engine, create_tables
 
 
 def test_foreign_keys_are_on_for_a_file_database(tmp_path: Path) -> None:
@@ -80,3 +80,32 @@ def test_in_memory_databases_are_independent_from_each_other() -> None:
     first.dispose()
     second.dispose()
     assert tables == 0
+
+
+def test_create_tables_builds_every_registered_table() -> None:
+    engine = create_db_engine("sqlite://")
+
+    create_tables(engine)
+
+    assert "task_groups" in inspect(engine).get_table_names()
+    engine.dispose()
+
+
+def test_create_tables_can_run_twice_without_losing_data() -> None:
+    engine = create_db_engine("sqlite://")
+    create_tables(engine)
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "INSERT INTO task_groups "
+                "(id, name, normalized_name, created_at, updated_at) "
+                "VALUES ('1', 'Work', 'work', '2026-01-01', '2026-01-01')"
+            )
+        )
+
+    create_tables(engine)
+
+    with engine.connect() as connection:
+        rows = connection.execute(text("SELECT COUNT(*) FROM task_groups")).scalar_one()
+    engine.dispose()
+    assert rows == 1
