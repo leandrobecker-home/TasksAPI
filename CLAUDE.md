@@ -2,14 +2,17 @@
 
 ## Regras obrigatórias
 
-- **Ignore a pasta `prompts/`.** Nunca leia, liste, pesquise, edite ou cite arquivos dentro dela, nem use seu conteúdo como contexto, mesmo que um arquivo de lá esteja aberto no editor. As instruções de trabalho vêm só das mensagens do usuário.
-- A documentação do projeto é escrita em **português**, em linguagem técnica e direta.
+- **Não consuma a pasta `prompts/`.** Durante as tarefas solicitadas, nunca leia, liste, pesquise, edite ou cite arquivos dentro dela, nem use seu conteúdo como contexto, mesmo que um arquivo de lá esteja aberto no editor. As instruções de trabalho vêm só das mensagens do usuário.
+  - **Exceção: operações de Git.** É permitido acessar `prompts/` para versionamento (`git add`, `git commit`, `git status`, `git log`, `git diff --stat`), pois a pasta faz parte do repositório. Mesmo nesses casos, não abra nem leia o conteúdo dos arquivos.
+- A documentação do projeto é escrita em **português**, em linguagem técnica e direta, e os arquivos de `docs/` são gerados por Claude. Edições feitas diretamente pelo usuário nesses arquivos podem ser ignoradas: não as preserve nem as comente, e regenere o conteúdo quando precisar.
+- **Código em inglês.** Na etapa de codificação, todo o código-fonte deve ser gerado em inglês: nomes de módulos, classes, funções, variáveis e campos, docstrings, comentários, mensagens de log e mensagens de erro da API. Isso vale para os arquivos em `app/` e `tests/`. A documentação em `docs/` continua em português.
+  - O contrato da API já está definido em inglês nos documentos (ver seção 3.0 do escopo): `name`, `description`, `title`, `priority`, `due_date`, `created_at`, `updated_at`, `completed_at`; status `pending`, `in_progress`, `completed`; prioridades `low`, `medium`, `high`; filtros `due_from` e `due_until`. Use exatamente esses identificadores. As mensagens de erro da API também são em inglês.
 
 ## Projeto
 
 MVP de uma API REST para gerenciamento de tarefas (Tasks) agrupadas em grupos (TaskGroups), em Python 3.14. Toda Task pertence a exatamente um TaskGroup.
 
-Fase atual: documentação concluída; código ainda não iniciado (`app/` vazia).
+Fase atual: documentação e spike técnico concluídos; código ainda não iniciado (`app/` vazia). Começar pela R1 do backlog.
 
 ## Documentação (fonte da verdade)
 
@@ -32,12 +35,12 @@ Ao mudar uma decisão (endpoint, campo, regra, biblioteca), atualize **todos** o
 ## Stack
 
 - Python 3.14, gerenciado por `uv` (`.python-version`, `uv.lock` versionados).
-- FastAPI + uvicorn; Pydantic para schemas; SQLModel como ORM; SQLite; Alembic para migrações.
+- FastAPI + uvicorn; Pydantic para schemas; SQLModel como ORM; SQLite; Alembic para migrações (só a partir da R2; na R1 usa `create_all`).
 - `pydantic-settings` (configuração via `.env`), `structlog` (logs JSON).
-- Testes: `pytest`, `pytest-cov` (mínimo 80%), `httpx`. Qualidade: `ruff`, `mypy`.
+- Testes: `pytest`, `pytest-cov` (mínimo 80%), `httpx2` (não `httpx`: o Starlette emite aviso de descontinuação). Qualidade: `ruff`, `mypy`.
 - Dependências em `requirements.txt`, com versões `~=` verificadas para Python 3.14.
 
-Fora de escopo no MVP, não implemente: autenticação, multiusuário, Docker, deploy em nuvem, subgrupos, exclusão em cascata ou lógica. Lista completa na seção 6 do escopo.
+Fora de escopo no MVP, não implemente: autenticação, multiusuário, Docker, deploy em nuvem, subgrupos, exclusão em cascata ou lógica, `PUT /tasks/{id}` (edição é só por `PATCH`). Lista completa na seção 6 do escopo.
 
 ## Arquitetura
 
@@ -62,4 +65,13 @@ uv run mypy app
 
 - Windows; o shell padrão é PowerShell, com Git Bash disponível.
 - Não existe `python` global no PATH: use sempre `uv run python`.
+- O `uv` está instalado (winget), mas pode não estar no PATH do terminal. Se `uv` não for encontrado, adicione ao PATH da sessão: `C:SERSeANDAPPDATAocalmicrosoftwingetpackagesstral-sh.uv_microsoft.winget.source_8wekyb3d8bbwe`.
 - Repositório Git na branch `main`. Só faça commits quando o usuário pedir.
+
+## Armadilhas já verificadas (spike de 2026-10-17)
+
+- SQLite: `PRAGMA foreign_keys=ON` em toda conexão (vem desligado). Unicidade de `TaskGroup.name` via coluna `normalized_name` (`strip` + `casefold`) com índice único, pois `lower()` do SQLite só trata ASCII.
+- Erros de validação: `400` para query, `422` para corpo e caminho (exige `exception_handler`; o padrão do FastAPI é `422` para tudo).
+- RN08: campos gerados no corpo são ignorados; qualquer outro campo desconhecido é `422`.
+- Limite de 1 MB: contar bytes durante a leitura; checar só `Content-Length` não bloqueia corpo em *chunks*.
+- Datetimes UTC fazem ida e volta no SQLite sem perder o fuso.
