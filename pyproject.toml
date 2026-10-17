@@ -74,6 +74,9 @@ warn_required_dynamic_aliases = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+# Test order is shuffled on every run (pytest-randomly). To reproduce a failing order,
+# rerun with the seed printed in the report header: pytest -p randomly --randomly-seed=N.
+# To run in file order, pass: -p no:randomly.
 addopts = "-ra --strict-markers --strict-config"
 filterwarnings = ["error"]
 
