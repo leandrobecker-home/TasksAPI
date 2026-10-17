@@ -69,7 +69,7 @@
   - [ ] Banco SQLite configurado por variável de ambiente; nenhuma consulta SQL fora da camada de repositório.
 
 - [ ] **RT05 — Formato de dados**
-  - [ ] Requisições e respostas em JSON UTF-8 (`Content-Type: application/json`).
+  - [x] Requisições e respostas em JSON UTF-8 (`Content-Type: application/json`).
   - [ ] Datas no formato `YYYY-MM-DD`; datetimes em ISO 8601 com fuso UTC (`Z` ou `+00:00`).
   - [ ] Data em formato inválido retorna `422`.
 
@@ -89,12 +89,12 @@
   - [x] `.env` no `.gitignore`; nenhum segredo no repositório.
 
 - [ ] **RT14 — Tratamento de erros (RFC 9457)**
-  - [ ] Toda resposta de erro usa `application/problem+json` com `type`, `title`, `status`, `detail` e `instance`.
-  - [ ] Parâmetro de query inválido retorna `400`; corpo inválido e `id` de caminho que não é UUID retornam `422`.
-  - [ ] Rota inexistente retorna `404` e método não permitido retorna `405`, ambos em Problem Details.
-  - [ ] Corpo com JSON malformado retorna `400`.
-  - [ ] Erro `500` não expõe stack trace, SQL ou caminhos internos.
-  - [ ] Cada código da tabela da seção 4.5 do escopo tem teste de contrato dedicado.
+  - [x] Toda resposta de erro usa `application/problem+json` com `type`, `title`, `status`, `detail` e `instance` (exceto o `503` de `GET /health`, que segue o formato do RF14).
+  - [x] Parâmetro de query inválido retorna `400`; corpo inválido e `id` de caminho que não é UUID retornam `422`.
+  - [x] Rota inexistente retorna `404` e método não permitido retorna `405`, ambos em Problem Details.
+  - [x] Corpo com JSON malformado retorna `400`.
+  - [x] Erro `500` não expõe stack trace, SQL ou caminhos internos.
+  - [ ] Cada código da tabela da seção 4.5 do escopo tem teste de contrato dedicado (faltam o `413`, na Etapa 17; o `503` é o do `GET /health`).
 
 - [ ] **RT15 — Estratégia de testes**
   - [x] `pytest` configurado no `pyproject.toml` (diretório `tests/`, separação `unit` e `integration`).
