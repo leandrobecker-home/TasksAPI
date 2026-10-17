@@ -14,6 +14,7 @@ structlog~=26.1             # Logs estruturados em JSON com request_id (RT09)
 # --- Desenvolvimento e testes ------------------------------------------------
 pytest~=9.1                 # Testes unitários e de integração (RT07)
 pytest-cov~=7.1             # Medição de cobertura, mínimo 80% (RT07)
+pytest-randomly~=5.0        # Ordem aleatória dos testes para detectar dependência entre eles (RT15)
 httpx2~=2.13.1              # Cliente HTTP do TestClient (Starlette descontinuou o httpx) e do script de carga (RT06, RT15)
 ruff~=0.17.1                # Lint e formatação (RT08)
 mypy~=2.4                   # Checagem estática de tipos (RT08)
