@@ -63,9 +63,9 @@
   - [ ] Tabelas `task_groups` e `tasks` criadas por `SQLModel.metadata.create_all`.
   - [ ] `tasks.task_group_id` é chave estrangeira obrigatória para `task_groups.id`.
   - [ ] `PRAGMA foreign_keys=ON` executado em toda conexão; teste prova que inserir tarefa com grupo inexistente é rejeitado pelo banco.
-  - [ ] Coluna interna `normalized_name` (`strip` + `casefold`) com índice único; teste prova que `Ação` e `AÇÃO` colidem.
+  - [x] Coluna interna `normalized_name` (`strip` + `casefold`) com índice único; teste prova que `Ação` e `AÇÃO` colidem.
   - [ ] Duas criações concorrentes do mesmo nome: uma retorna `201` e a outra `409` (a unicidade é garantida pelo banco, não só por consulta prévia).
-  - [ ] Datetimes gravados em UTC e lidos com fuso UTC; teste de ida e volta.
+  - [x] Datetimes gravados em UTC e lidos com fuso UTC; teste de ida e volta.
   - [ ] Banco SQLite configurado por variável de ambiente; nenhuma consulta SQL fora da camada de repositório.
 
 - [ ] **RT05 — Formato de dados**
@@ -101,7 +101,8 @@
   - [x] Cada teste usa banco SQLite próprio (em memória ou arquivo temporário), criado e descartado por fixture.
   - [x] Os testes passam em qualquer ordem e em execução repetida.
   - [x] Fixture de cliente HTTP (`TestClient` com `httpx2`) compartilhada.
-  - [ ] Fábricas de `TaskGroup` e `Task` compartilhadas (criadas junto com os modelos, nas etapas 7 e 9).
+  - [x] Fábrica de `TaskGroup` compartilhada.
+  - [ ] Fábrica de `Task` compartilhada (criada junto com o modelo, na Etapa 9).
 
 ### TaskGroups
 
