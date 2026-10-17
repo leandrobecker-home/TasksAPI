@@ -97,10 +97,11 @@
   - [ ] Cada código da tabela da seção 4.5 do escopo tem teste de contrato dedicado.
 
 - [ ] **RT15 — Estratégia de testes**
-  - [ ] `pytest` configurado no `pyproject.toml` (diretório `tests/`, separação `unit` e `integration`).
-  - [ ] Cada teste usa banco SQLite próprio (em memória ou arquivo temporário), criado e descartado por fixture.
-  - [ ] Os testes passam em qualquer ordem e em execução repetida.
-  - [ ] Fixtures de cliente HTTP (`TestClient` com `httpx2`) e fábricas de `TaskGroup` e `Task` compartilhadas.
+  - [x] `pytest` configurado no `pyproject.toml` (diretório `tests/`, separação `unit` e `integration`).
+  - [x] Cada teste usa banco SQLite próprio (em memória ou arquivo temporário), criado e descartado por fixture.
+  - [x] Os testes passam em qualquer ordem e em execução repetida.
+  - [x] Fixture de cliente HTTP (`TestClient` com `httpx2`) compartilhada.
+  - [ ] Fábricas de `TaskGroup` e `Task` compartilhadas (criadas junto com os modelos, nas etapas 7 e 9).
 
 ### TaskGroups
 
