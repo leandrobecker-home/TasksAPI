@@ -81,3 +81,13 @@ def update_task(task_id: UUID, data: TaskUpdate, service: ServiceDep) -> Task:
     Setting ``task_group_id`` moves the task to another group.
     """
     return service.update(task_id, data)
+
+
+@router.delete(
+    "/{task_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a task",
+)
+def delete_task(task_id: UUID, service: ServiceDep) -> None:
+    """Delete a task for good, or return 404 if it does not exist."""
+    service.delete(task_id)
