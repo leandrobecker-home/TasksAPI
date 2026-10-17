@@ -11,6 +11,8 @@ from pathlib import Path
 import httpx2
 import pytest
 
+from tests.flows import walk_through_the_main_flow
+
 ROOT = Path(__file__).resolve().parents[2]
 STARTUP_TIMEOUT_SECONDS = 20.0
 
@@ -72,3 +74,11 @@ def test_server_starts_and_reports_health(server_url: str) -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok", "database": "ok"}
+
+
+def test_main_flow_against_a_running_server(server_url: str) -> None:
+    """The whole flow over the network, on a real server and a database file."""
+    wait_until_healthy(server_url)
+
+    with httpx2.Client(base_url=server_url, timeout=10.0) as client:
+        walk_through_the_main_flow(client)

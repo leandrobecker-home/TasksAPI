@@ -16,6 +16,9 @@ from app.config import Settings
 from app.db import create_db_engine, create_tables
 from app.main import create_app
 
+# Assertions in the shared flows module should show their values when they fail.
+pytest.register_assert_rewrite("tests.flows")
+
 
 @pytest.fixture
 def engine() -> Iterator[Engine]:
