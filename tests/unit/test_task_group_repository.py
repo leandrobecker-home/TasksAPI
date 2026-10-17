@@ -4,6 +4,7 @@ import threading
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
@@ -13,8 +14,12 @@ from sqlmodel import Session, SQLModel
 
 from app.db import create_db_engine
 from app.errors import ConflictError
-from app.repositories.task_group import DUPLICATE_NAME_DETAIL, TaskGroupRepository
-from tests.factories import build_task_group, create_task_group
+from app.repositories.task_group import (
+    DUPLICATE_NAME_DETAIL,
+    GROUP_HAS_TASKS_DETAIL,
+    TaskGroupRepository,
+)
+from tests.factories import build_task_group, create_task, create_task_group
 
 
 @pytest.fixture
@@ -332,3 +337,48 @@ def test_other_integrity_errors_are_not_reported_as_conflicts(
         clash = build_task_group(name="Another", id=existing.id)
         with pytest.raises(IntegrityError):
             TaskGroupRepository(other_session).add(clash)
+
+
+# --- a group with tasks cannot be deleted (RN03) ----------------------------------
+
+
+def test_delete_of_a_group_with_tasks_is_a_conflict(
+    repository: TaskGroupRepository, session: Session
+) -> None:
+    task = create_task(session)
+    group = repository.get(task.task_group_id)
+    assert group is not None
+
+    with pytest.raises(ConflictError) as error:
+        repository.delete(group)
+
+    assert error.value.detail == GROUP_HAS_TASKS_DETAIL
+    assert error.value.status_code == 409
+
+
+def test_session_stays_usable_after_a_blocked_delete(
+    repository: TaskGroupRepository, session: Session
+) -> None:
+    task = create_task(session)
+    group = repository.get(task.task_group_id)
+    assert group is not None
+    with pytest.raises(ConflictError):
+        repository.delete(group)
+
+    repository.add(build_task_group(name="Another"))
+    session.commit()
+
+    assert repository.get_by_name("Another") is not None
+
+
+def test_other_integrity_errors_on_delete_are_not_reported_as_conflicts(
+    repository: TaskGroupRepository, session: Session
+) -> None:
+    group = create_task_group(session)
+    unrelated = IntegrityError("DELETE ...", {}, Exception("some other constraint"))
+
+    with (
+        patch.object(session, "flush", side_effect=unrelated),
+        pytest.raises(IntegrityError),
+    ):
+        repository.delete(group)

@@ -12,6 +12,7 @@ from app.models import TaskGroup
 from app.models.task_group import normalize_name
 
 DUPLICATE_NAME_DETAIL = "A task group with this name already exists."
+GROUP_HAS_TASKS_DETAIL = "The task group still has tasks; delete or move them first."
 
 
 class TaskGroupRepository:
@@ -39,9 +40,20 @@ class TaskGroupRepository:
         return group
 
     def delete(self, group: TaskGroup) -> None:
-        """Remove a group."""
+        """Remove a group.
+
+        Raises ``ConflictError`` if tasks still point at it: the database refuses
+        the deletion, which backs up the service's own check when a task is
+        created in the group at the very same moment (RN03).
+        """
         self._session.delete(group)
-        self._session.flush()
+        try:
+            self._session.flush()
+        except IntegrityError as error:
+            if "foreign key" not in str(error.orig).lower():
+                raise
+            self._session.rollback()
+            raise ConflictError(GROUP_HAS_TASKS_DETAIL) from error
 
     def get(self, group_id: UUID) -> TaskGroup | None:
         """Return the group with this id, or ``None``."""

@@ -9,10 +9,12 @@ from sqlmodel import Session
 
 from app.errors import ConflictError, NotFoundError
 from app.models import TaskGroup
+from app.repositories.task import TaskRepository
+from app.repositories.task_group import GROUP_HAS_TASKS_DETAIL
 from app.schemas.common import Pagination
 from app.schemas.task_group import TaskGroupCreate, TaskGroupUpdate
 from app.services.task_group import TaskGroupService
-from tests.factories import create_task_group
+from tests.factories import create_task, create_task_group
 
 
 @pytest.fixture
@@ -271,3 +273,64 @@ def test_a_deleted_name_can_be_used_again(service: TaskGroupService) -> None:
     service.delete(group.id)
 
     assert service.create(TaskGroupCreate(name="Temporary")).name == "Temporary"
+
+
+# --- a group with tasks cannot be deleted (RN03) --------------------------------------
+
+
+def test_delete_refuses_a_group_that_still_has_tasks(
+    service: TaskGroupService, session: Session, engine: Engine
+) -> None:
+    group = create_task_group(session, name="Work")
+    create_task(session, group)
+    group_id = group.id
+
+    with pytest.raises(ConflictError) as error:
+        service.delete(group_id)
+
+    assert error.value.status_code == 409
+    assert error.value.detail == GROUP_HAS_TASKS_DETAIL
+    assert stored(engine, group_id) is not None
+
+
+def test_a_refused_delete_keeps_every_task(
+    service: TaskGroupService, session: Session
+) -> None:
+    group = create_task_group(session, name="Work")
+    for _ in range(3):
+        create_task(session, group)
+
+    with pytest.raises(ConflictError):
+        service.delete(group.id)
+
+    assert TaskRepository(session).count_for_group(group.id) == 3
+
+
+def test_delete_works_once_the_tasks_are_gone(
+    service: TaskGroupService, session: Session, engine: Engine
+) -> None:
+    group = create_task_group(session, name="Work")
+    task = create_task(session, group)
+    group_id = group.id
+    with pytest.raises(ConflictError):
+        service.delete(group_id)
+
+    session.delete(task)
+    session.commit()
+    service.delete(group_id)
+
+    assert stored(engine, group_id) is None
+
+
+def test_tasks_of_another_group_do_not_block_the_delete(
+    service: TaskGroupService, session: Session, engine: Engine
+) -> None:
+    empty = create_task_group(session, name="Empty")
+    busy = create_task_group(session, name="Busy")
+    create_task(session, busy)
+    empty_id = empty.id
+
+    service.delete(empty_id)
+
+    assert stored(engine, empty_id) is None
+    assert stored(engine, busy.id) is not None

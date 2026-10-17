@@ -1,13 +1,14 @@
-"""Business rules for task groups (RN01, RN08)."""
+"""Business rules for task groups (RN01, RN03, RN08)."""
 
 from collections.abc import Sequence
 from uuid import UUID
 
 from sqlmodel import Session
 
-from app.errors import NotFoundError
+from app.errors import ConflictError, NotFoundError
 from app.models import TaskGroup
-from app.repositories.task_group import TaskGroupRepository
+from app.repositories.task import TaskRepository
+from app.repositories.task_group import GROUP_HAS_TASKS_DETAIL, TaskGroupRepository
 from app.schemas.common import Pagination
 from app.schemas.task_group import TaskGroupCreate, TaskGroupUpdate
 
@@ -23,6 +24,7 @@ class TaskGroupService:
     def __init__(self, session: Session) -> None:
         self._session = session
         self._groups = TaskGroupRepository(session)
+        self._tasks = TaskRepository(session)
 
     def create(self, data: TaskGroupCreate) -> TaskGroup:
         """Create a group; ``ConflictError`` if the name is already taken."""
@@ -63,8 +65,14 @@ class TaskGroupService:
         return self._commit(group)
 
     def delete(self, group_id: UUID) -> None:
-        """Delete a group; ``NotFoundError`` if it does not exist."""
+        """Delete a group.
+
+        ``NotFoundError`` if it does not exist; ``ConflictError`` if it still has
+        tasks, which must be deleted or moved first (RN03).
+        """
         group = self.get(group_id)
+        if self._tasks.count_for_group(group_id) > 0:
+            raise ConflictError(GROUP_HAS_TASKS_DETAIL)
         self._groups.delete(group)
         self._session.commit()
 

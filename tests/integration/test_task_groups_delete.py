@@ -1,8 +1,4 @@
-"""Integration tests for DELETE /api/v1/task-groups/{id} (RF05).
-
-Refusing to delete a group that still has tasks (RN03) needs the task table and
-is tested together with it.
-"""
+"""Integration tests for DELETE /api/v1/task-groups/{id} (RF05, RN03)."""
 
 from uuid import uuid4
 
@@ -10,8 +6,8 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
-from app.models import TaskGroup
-from tests.factories import create_task_group
+from app.models import Task, TaskGroup
+from tests.factories import create_task, create_task_group
 
 URL = "/api/v1/task-groups"
 
@@ -139,3 +135,63 @@ def test_the_endpoint_is_documented(client: TestClient) -> None:
     assert operation["summary"] == "Delete a task group"
     assert operation["tags"] == ["task-groups"]
     assert "204" in operation["responses"]
+
+
+# --- a group with tasks cannot be deleted (RN03) ----------------------------------
+
+
+def test_a_group_with_a_task_cannot_be_deleted(
+    client: TestClient, session: Session
+) -> None:
+    group = create_task_group(session, name="Work")
+    create_task(session, group)
+
+    response = client.delete(f"{URL}/{group.id}")
+
+    assert response.status_code == 409
+    assert response.headers["content-type"] == "application/problem+json"
+    assert response.json() == {
+        "type": "about:blank",
+        "title": "Conflict",
+        "status": 409,
+        "detail": "The task group still has tasks; delete or move them first.",
+        "instance": f"{URL}/{group.id}",
+    }
+
+
+def test_a_refused_delete_leaves_the_group_and_its_tasks_in_place(
+    client: TestClient, session: Session
+) -> None:
+    group = create_task_group(session, name="Work")
+    task = create_task(session, group)
+    group_id, task_id = group.id, task.id
+
+    client.delete(f"{URL}/{group_id}")
+
+    session.expire_all()
+    assert client.get(f"{URL}/{group_id}").status_code == 200
+    assert session.get(Task, task_id) is not None
+
+
+def test_a_group_can_be_deleted_after_its_tasks_are_removed(
+    client: TestClient, session: Session
+) -> None:
+    group = create_task_group(session, name="Work")
+    task = create_task(session, group)
+    assert client.delete(f"{URL}/{group.id}").status_code == 409
+
+    session.delete(task)
+    session.commit()
+
+    assert client.delete(f"{URL}/{group.id}").status_code == 204
+    assert client.get(f"{URL}/{group.id}").status_code == 404
+
+
+def test_tasks_in_another_group_do_not_block_the_delete(
+    client: TestClient, session: Session
+) -> None:
+    empty = create_task_group(session, name="Empty")
+    busy = create_task_group(session, name="Busy")
+    create_task(session, busy)
+
+    assert client.delete(f"{URL}/{empty.id}").status_code == 204
