@@ -76,12 +76,12 @@
 - [ ] **RT07 — Cobertura de testes**
   - [ ] Testes unitários dos serviços e testes de integração dos endpoints.
   - [ ] Cada regra RN01–RN08 tem ao menos um teste dedicado, criado junto com a funcionalidade.
-  - [ ] `pytest --cov=app --cov-fail-under=80` configurado e executado localmente antes de cada commit desde a R1.
+  - [x] `pytest --cov=app --cov-fail-under=80` configurado e executado localmente antes de cada commit desde a R1.
 
-- [ ] **RT08 — Lint, formatação e tipos**
-  - [ ] Configuração de `ruff` e `mypy` no `pyproject.toml`.
-  - [ ] `uv run ruff check .`, `uv run ruff format --check .` e `uv run mypy app` passam sem erros.
-  - [ ] Os quatro comandos do portão de qualidade (docs/07, seção 1.1) passam antes de cada commit.
+- [x] **RT08 — Lint, formatação e tipos**
+  - [x] Configuração de `ruff` e `mypy` no `pyproject.toml`.
+  - [x] `uv run ruff check .`, `uv run ruff format --check .` e `uv run mypy app` passam sem erros.
+  - [x] Os quatro comandos do portão de qualidade (docs/07, seção 1.1) passam antes de cada commit.
 
 - [x] **RT10 — Configuração por ambiente**
   - [x] Toda configuração (URL do banco, nível de log, porta) lida de variáveis de ambiente.
