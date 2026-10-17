@@ -1,14 +1,21 @@
 """Translation of errors into RFC 9457 Problem Details responses (RT14)."""
 
+import logging
 from collections.abc import Mapping, Sequence
+from http import HTTPStatus
 from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.errors import DomainError
 from app.schemas.problem import PROBLEM_MEDIA_TYPE, ProblemDetails
+
+logger = logging.getLogger(__name__)
+
+INTERNAL_ERROR_DETAIL = "An unexpected error occurred."
 
 VALIDATION_TITLE = "Validation Error"
 MALFORMED_JSON_TITLE = "Bad Request"
@@ -28,6 +35,26 @@ def _location(loc: Sequence[int | str]) -> str:
 def describe_validation_errors(errors: Sequence[Mapping[str, Any]]) -> str:
     """Summarise validation errors as ``field: message`` pairs."""
     return "; ".join(f"{_location(error['loc'])}: {error['msg']}" for error in errors)
+
+
+def _http_title(status_code: int) -> str:
+    """Return the standard reason phrase, e.g. ``Not Found`` for 404."""
+    try:
+        return HTTPStatus(status_code).phrase
+    except ValueError:
+        return "Error"
+
+
+def _http_detail(request: Request, status_code: int, detail: str) -> str:
+    """Make the router's bare 404 and 405 messages more informative."""
+    if status_code == HTTPStatus.NOT_FOUND and detail == HTTPStatus.NOT_FOUND.phrase:
+        return "No endpoint matches this path."
+    if (
+        status_code == HTTPStatus.METHOD_NOT_ALLOWED
+        and detail == HTTPStatus.METHOD_NOT_ALLOWED.phrase
+    ):
+        return f"Method {request.method} is not allowed on this path."
+    return detail
 
 
 def _is_malformed_json(errors: Sequence[Mapping[str, Any]]) -> bool:
@@ -102,4 +129,32 @@ def register_error_handlers(app: FastAPI) -> None:
             status_code=validation_status(errors),
             title=VALIDATION_TITLE,
             detail=describe_validation_errors(errors),
+        )
+
+    @app.exception_handler(StarletteHTTPException)
+    async def handle_http_exception(
+        request: Request, exc: StarletteHTTPException
+    ) -> JSONResponse:
+        return problem_response(
+            request,
+            status_code=exc.status_code,
+            title=_http_title(exc.status_code),
+            detail=_http_detail(request, exc.status_code, str(exc.detail)),
+            headers=exc.headers,
+        )
+
+    @app.exception_handler(Exception)
+    async def handle_unexpected_error(request: Request, exc: Exception) -> JSONResponse:
+        # The traceback goes to the log only; the client never sees internals.
+        logger.error(
+            "Unhandled error on %s %s",
+            request.method,
+            request.url.path,
+            exc_info=exc,
+        )
+        return problem_response(
+            request,
+            status_code=500,
+            title=_http_title(500),
+            detail=INTERNAL_ERROR_DETAIL,
         )
