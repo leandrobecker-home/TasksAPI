@@ -3,7 +3,7 @@
 | Item | Valor |
 |---|---|
 | Base | [01-escopo-mvp.md](01-escopo-mvp.md) v1.3 · [02-backlog.md](02-backlog.md) v1.2 · [03-arquitetura-mvp.md](03-arquitetura-mvp.md) v1.2 |
-| Versão do documento | 1.5 |
+| Versão do documento | 1.6 |
 | Data | 2026-10-17 |
 | Status | Rascunho |
 
@@ -227,16 +227,17 @@ tests/
 ### Etapa 10 — Task: regras e endpoints · RF06, RF07, RF11–RF13
 
 1. **Objetivo:** ciclo de vida completo da tarefa dentro de um grupo.
-2. **Requisitos:** RF06, RF07 (por grupo), RF11, RF12, RF13; RN02 a RN08.
-3. **Testes:** unitários do serviço (status padrão, `completed_at` preenchido e limpo, mover de grupo, campos gerados ignorados); integração por endpoint cobrindo os critérios do backlog.
+2. **Requisitos:** RF06, RF07 (por grupo), RF11, RF12, RF13; RN02, RN04 a RN08.
+3. **Testes:** unitários do serviço (status padrão, `completed_at` preenchido e limpo, as 9 transições de status, mover de grupo); de schemas (formato de data, campos gerados ignorados); integração por endpoint cobrindo os critérios do backlog.
 4. **Commits:**
    1. `feat(tasks): adiciona schemas de entrada e saída`
-   2. `feat(tasks): adiciona serviço com regras RN02 e RN04 a RN07`
+   2. `feat(tasks): adiciona serviço com as regras RN02 e RN04 a RN07`
    3. `feat(tasks): adiciona POST /task-groups/{group_id}/tasks (RF06)`
    4. `feat(tasks): adiciona GET /task-groups/{group_id}/tasks (RF07)`
    5. `feat(tasks): adiciona GET /tasks/{id} (RF11)`
    6. `feat(tasks): adiciona PATCH /tasks/{id} com transição de status e mudança de grupo (RF12)`
    7. `feat(tasks): adiciona DELETE /tasks/{id} (RF13)`
+   8. `docs: marca critérios do RF06 ao RF13, RT02, RT05 e RT07 no backlog`
 5. **Pronto quando:** RF06, RF07, RF11, RF12 e RF13 estão com todos os critérios marcados.
 
 ### Etapa 11 — Fechamento da R1

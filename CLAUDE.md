@@ -13,7 +13,7 @@
 
 MVP de uma API REST para gerenciamento de tarefas (Tasks) agrupadas em grupos (TaskGroups), em Python 3.14. Toda Task pertence a exatamente um TaskGroup.
 
-Fase atual: implementação da R1 em andamento, seguindo `docs/07-passos-dev.md`. Etapas 1 a 9 concluídas (esqueleto, configuração, qualidade local, infraestrutura de testes, aplicação mínima, erros e paginação, persistência de TaskGroup, CRUD completo em `/api/v1/task-groups` e persistência de Task, com a recusa de excluir grupo que tem tarefas). Próxima: Etapa 10 (regras e endpoints de Task).
+Fase atual: implementação da R1 em andamento, seguindo `docs/07-passos-dev.md`. Etapas 1 a 10 concluídas: infraestrutura, erros e paginação, CRUD completo de grupos em `/api/v1/task-groups` e de tarefas em `/api/v1/task-groups/{group_id}/tasks` e `/api/v1/tasks/{id}`. Próxima: Etapa 11 (fechamento da R1: teste de ponta a ponta e aceite).
 
 ## Documentação (fonte da verdade)
 

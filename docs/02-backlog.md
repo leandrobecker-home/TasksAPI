@@ -54,10 +54,10 @@
   - [x] Um único comando documentado sobe a API localmente.
   - [x] Teste de fumaça (*smoke test*) sobe a aplicação e responde `200` em `GET /health`.
 
-- [ ] **RT02 — Arquitetura em camadas**
-  - [ ] Código separado em rotas, serviços e repositórios.
-  - [ ] Serviços não importam nada do framework web (verificado em revisão ou por regra de import).
-  - [ ] Regras de negócio (RN01–RN08) implementadas na camada de serviço e testadas sem subir o servidor HTTP.
+- [x] **RT02 — Arquitetura em camadas**
+  - [x] Código separado em rotas, serviços e repositórios.
+  - [x] Serviços não importam nada do framework web (verificado em revisão ou por regra de import).
+  - [x] Regras de negócio implementadas e testadas sem subir o servidor HTTP: RN01 a RN07 na camada de serviço e RN08 nos schemas de entrada.
 
 - [x] **RT03 — Persistência com ORM (esquema por `create_all` na R1)**
   - [x] Tabelas `task_groups` e `tasks` criadas por `SQLModel.metadata.create_all`.
@@ -68,14 +68,14 @@
   - [x] Datetimes gravados em UTC e lidos com fuso UTC; teste de ida e volta.
   - [x] Banco SQLite configurado por variável de ambiente (`TASKS_DATABASE_URL`); nenhuma consulta SQL fora da camada de repositório (vigiado por teste de arquitetura).
 
-- [ ] **RT05 — Formato de dados**
+- [x] **RT05 — Formato de dados**
   - [x] Requisições e respostas em JSON UTF-8 (`Content-Type: application/json`).
-  - [ ] Datas no formato `YYYY-MM-DD`; datetimes em ISO 8601 com fuso UTC (`Z` ou `+00:00`).
-  - [ ] Data em formato inválido retorna `422`.
+  - [x] Datas no formato `YYYY-MM-DD`; datetimes em ISO 8601 com fuso UTC (`Z` ou `+00:00`).
+  - [x] Data em formato inválido retorna `422`.
 
-- [ ] **RT07 — Cobertura de testes**
-  - [ ] Testes unitários dos serviços e testes de integração dos endpoints.
-  - [ ] Cada regra RN01–RN08 tem ao menos um teste dedicado, criado junto com a funcionalidade.
+- [x] **RT07 — Cobertura de testes**
+  - [x] Testes unitários dos serviços e testes de integração dos endpoints.
+  - [x] Cada regra RN01–RN08 tem ao menos um teste dedicado, criado junto com a funcionalidade.
   - [x] `pytest --cov=app --cov-fail-under=80` configurado e executado localmente antes de cada commit desde a R1.
 
 - [x] **RT08 — Lint, formatação e tipos**
@@ -140,40 +140,40 @@
 
 ### Tasks
 
-- [ ] **RF06 — Criar tarefa no grupo** · `POST /task-groups/{group_id}/tasks`
-  - [ ] Com `title` válido, retorna `201`, a tarefa criada e o header `Location: /api/v1/tasks/{id}`.
-  - [ ] A tarefa criada tem `task_group_id` igual ao `group_id` do caminho.
-  - [ ] `group_id` inexistente retorna `404`, e nenhuma tarefa é criada (RN02).
-  - [ ] Sem `status` e `priority`, a tarefa nasce com `pending` e `medium` (RN05).
-  - [ ] `title` ausente, vazio (após remover espaços) ou com mais de 200 caracteres retorna `422`.
-  - [ ] `description` com mais de 2000 caracteres retorna `422`.
-  - [ ] `status` ou `priority` fora dos valores permitidos retorna `422`.
-  - [ ] Campos gerados (`id`, `created_at`, `updated_at`, `completed_at`) enviados pelo cliente são ignorados; qualquer outro campo desconhecido retorna `422` (RN08).
-  - [ ] Criada já com `status = completed`, a tarefa tem `completed_at` preenchido (RN07).
+- [x] **RF06 — Criar tarefa no grupo** · `POST /task-groups/{group_id}/tasks`
+  - [x] Com `title` válido, retorna `201`, a tarefa criada e o header `Location: /api/v1/tasks/{id}`.
+  - [x] A tarefa criada tem `task_group_id` igual ao `group_id` do caminho.
+  - [x] `group_id` inexistente retorna `404`, e nenhuma tarefa é criada (RN02).
+  - [x] Sem `status` e `priority`, a tarefa nasce com `pending` e `medium` (RN05).
+  - [x] `title` ausente, vazio (após remover espaços) ou com mais de 200 caracteres retorna `422`.
+  - [x] `description` com mais de 2000 caracteres retorna `422`.
+  - [x] `status` ou `priority` fora dos valores permitidos retorna `422`.
+  - [x] Campos gerados (`id`, `created_at`, `updated_at`, `completed_at`) enviados pelo cliente são ignorados; qualquer outro campo desconhecido retorna `422` (RN08).
+  - [x] Criada já com `status = completed`, a tarefa tem `completed_at` preenchido (RN07).
 
-- [ ] **RF07 — Listar tarefas de um grupo** · `GET /task-groups/{group_id}/tasks`
-  - [ ] Retorna `200` no formato de listagem, com paginação igual à do RF02.
-  - [ ] Retorna apenas as tarefas daquele grupo.
-  - [ ] `group_id` inexistente retorna `404`.
-  - [ ] Ordem padrão: `created_at` decrescente.
+- [x] **RF07 — Listar tarefas de um grupo** · `GET /task-groups/{group_id}/tasks`
+  - [x] Retorna `200` no formato de listagem, com paginação igual à do RF02.
+  - [x] Retorna apenas as tarefas daquele grupo.
+  - [x] `group_id` inexistente retorna `404`.
+  - [x] Ordem padrão: `created_at` decrescente.
 
-- [ ] **RF11 — Consultar tarefa** · `GET /tasks/{id}`
-  - [ ] Tarefa existente retorna `200` com todos os campos, incluindo `task_group_id`.
-  - [ ] `id` inexistente retorna `404`; `id` que não é UUID válido retorna `422`.
+- [x] **RF11 — Consultar tarefa** · `GET /tasks/{id}`
+  - [x] Tarefa existente retorna `200` com todos os campos, incluindo `task_group_id`.
+  - [x] `id` inexistente retorna `404`; `id` que não é UUID válido retorna `422`.
 
-- [ ] **RF12 — Atualizar tarefa parcialmente** · `PATCH /tasks/{id}`
-  - [ ] Altera apenas os campos enviados e retorna `200`; `updated_at` muda.
-  - [ ] Qualquer transição entre `pending`, `in_progress` e `completed` é aceita (RN06).
-  - [ ] Mudar para `completed` preenche `completed_at`; sair de `completed` limpa o campo (RN07).
-  - [ ] `completed_at` enviado pelo cliente é ignorado (RN08).
-  - [ ] Alterar `task_group_id` para um grupo existente move a tarefa; para um grupo inexistente, retorna `422` (RN04).
-  - [ ] Mesmas validações de campo do RF06.
-  - [ ] Tarefa inexistente retorna `404`.
+- [x] **RF12 — Atualizar tarefa parcialmente** · `PATCH /tasks/{id}`
+  - [x] Altera apenas os campos enviados e retorna `200`; `updated_at` muda.
+  - [x] Qualquer transição entre `pending`, `in_progress` e `completed` é aceita (RN06).
+  - [x] Mudar para `completed` preenche `completed_at`; sair de `completed` limpa o campo (RN07).
+  - [x] `completed_at` enviado pelo cliente é ignorado (RN08).
+  - [x] Alterar `task_group_id` para um grupo existente move a tarefa; para um grupo inexistente, retorna `422` (RN04).
+  - [x] Mesmas validações de campo do RF06.
+  - [x] Tarefa inexistente retorna `404`.
 
-- [ ] **RF13 — Excluir tarefa** · `DELETE /tasks/{id}`
-  - [ ] Tarefa existente retorna `204` e é removida fisicamente (`GET` retorna `404`).
-  - [ ] Após excluir a última tarefa de um grupo, o grupo pode ser excluído (RF05).
-  - [ ] Tarefa inexistente retorna `404`.
+- [x] **RF13 — Excluir tarefa** · `DELETE /tasks/{id}`
+  - [x] Tarefa existente retorna `204` e é removida fisicamente (`GET` retorna `404`).
+  - [x] Após excluir a última tarefa de um grupo, o grupo pode ser excluído (RF05).
+  - [x] Tarefa inexistente retorna `404`.
 
 ### Operação
 
