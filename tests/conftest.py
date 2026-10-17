@@ -12,7 +12,9 @@ from fastapi.testclient import TestClient
 from sqlalchemy import Engine
 from sqlmodel import Session, SQLModel
 
+from app.config import Settings
 from app.db import create_db_engine
+from app.main import create_app
 
 
 @pytest.fixture
@@ -38,13 +40,10 @@ def session(engine: Engine) -> Iterator[Session]:
 
 
 @pytest.fixture
-def app() -> FastAPI:
-    """Provide a fresh application instance for a single test.
-
-    This is a bare FastAPI app until the application factory exists (stage 5),
-    at which point it becomes ``create_app`` wired to the test database.
-    """
-    return FastAPI()
+def app(engine: Engine) -> FastAPI:
+    """Provide a fresh application instance wired to the test database."""
+    settings = Settings(_env_file=None, database_url="sqlite://")
+    return create_app(settings, engine)
 
 
 @pytest.fixture
